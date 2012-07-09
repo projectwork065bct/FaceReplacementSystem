@@ -1,0 +1,64 @@
+Package: CoreAlgorithms
+Description: It consists of classes which are required for various stages of face replacement.
+
+How to use the classes?
+
+1. CannyEdgeDetector <Mubin>
+
+
+2. ImageWarper: 
+
+NOTE: You do not need to use Interpolator.java and Warper.java because ImageWarper.java uses it internally
+
+    ImageWarper imageWarper = new ImageWarper(image,sourceFeaturePoints, targetFeaturePoints);
+ 
+    BufferedImage warpedImage = imageWarper.runGet();
+
+
+
+3. SkinColorDetector: It is abstract class. You can extend it to make new skin color detector classes.
+
+
+
+4. SkinColorDetectorUsingStatistics.java:
+
+    Use the following code snippet:
+
+        SkinColorDetectorUsingStatistics scdut = new SkinColorDetectorUsingStatistics(image);
+        scdut.detectSkin();
+        skinDetectedImage  = scdut.getSkinImage();
+
+    
+    Work still left to be done:
+
+    findYCbCrRange(): This function has a coefficient in front of standard deviation. This coefficient must be dynamic. For now it is hard-coded into the class file.
+    
+    
+        
+
+
+5. SkinColorDetectorUsingThreshold.java
+
+        SkinColorDetectorUsingThreshold scdut = new SkinColorDetectorUsingThreshold(image);
+        scdut.detectSkin();
+        skinDetectedImage  = scdut.getSkinImage();
+
+        Work still left to be done:
+
+        The threshold values are static. Is there any way to make them dynamic?
+
+6. SeedRegionGrowing.java
+
+
+        Stack<Point> seedStack = new Stack();
+        
+        for(int x=rect.x;x<(rect.x+rect.width);x++)
+        {
+            for(int y=rect.y;y<(rect.y+rect.height);y++)
+            {
+                seedStack.push(new Point(x,y));
+            }
+        }
+        SeedRegionGrowing srg = new SeedRegionGrowing(originalImage,seedStack);
+        BufferedImage seedRegionGrownImage = srg.getBinaryImage();
+        

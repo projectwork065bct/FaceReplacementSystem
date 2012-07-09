@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package facereplacementsystem;
+package CoreAlgorithms;
 
 import Helpers.ColorModelConverter;
 import java.awt.Color;
@@ -14,7 +14,10 @@ import java.util.Stack;
 
 /**
  *
- * @author Dell
+ * @author Robik Singh Shrestha
+ * 
+ * 1. Provide the image and seedStack via constructor
+ * 2. Retrieve the binaryMatrix. 1= similar to the seeds, 0=different from seeds
  */
 public class SeedRegionGrowing {
 
@@ -23,7 +26,8 @@ public class SeedRegionGrowing {
     protected List<Point> region;
     protected BufferedImage image;//It is the image which is to be check
     public static final int INSIDE = 1, OUTSIDE = 0, UNDECIDED = 2;
-    protected int[][] binaryImage;
+    protected int[][] binaryMatrix;
+    protected BufferedImage binaryImage;
     protected float[][][] YCbCr;
     protected int minX, maxX, minY, maxY;
     //The following variables are for the condition that the pixel lies within the range of colors of  seed pixels
@@ -41,14 +45,15 @@ public class SeedRegionGrowing {
         findImageSize();
         initializeRange();
         growRegion();
+        createBinaryImage();
     }
 
     //Initially, non of the pixels are decided
     protected void initializeBinaryImage() {
-        binaryImage = new int[image.getWidth()][image.getHeight()];
+        binaryMatrix = new int[image.getWidth()][image.getHeight()];
         for (int x = 0; x < image.getWidth(); x++) {
             for (int y = 0; y < image.getHeight(); y++) {
-                binaryImage[x][y] = UNDECIDED;
+                binaryMatrix[x][y] = UNDECIDED;
             }
         }
     }
@@ -63,7 +68,7 @@ public class SeedRegionGrowing {
         //All the seed regions are inside the region
         for (int i = 0; i < seedStack.size(); i++) {
             point = seedStack.get(i);
-            binaryImage[point.x][point.y] = INSIDE;
+            binaryMatrix[point.x][point.y] = INSIDE;
         }
         seedCount = seedStack.size();
     }
@@ -125,17 +130,33 @@ public class SeedRegionGrowing {
             Point neighbor;
             for (int i = 0; i < neighborList.size(); i++) {
                 neighbor = neighborList.get(i);
-                if (binaryImage[neighbor.x][neighbor.y] != UNDECIDED) {
+                if (binaryMatrix[neighbor.x][neighbor.y] != UNDECIDED) {
                     continue;//If it has already been decided, then no need to worry about it again
                 }
                 if (satisfiesCondition(neighbor)) {
                     seedStack.push(neighbor);
-                    binaryImage[neighbor.x][neighbor.y] = INSIDE;
+                    binaryMatrix[neighbor.x][neighbor.y] = INSIDE;
                 } else {
-                    binaryImage[neighbor.x][neighbor.y] = OUTSIDE;
+                    binaryMatrix[neighbor.x][neighbor.y] = OUTSIDE;
                 }
             }
 
+        }
+    }
+    
+    public void createBinaryImage()
+    {
+        binaryImage = image;
+        for(int x=0;x<image.getWidth();x++)
+        {
+            for(int y=0;y<image.getHeight();y++)
+            {
+                if(binaryMatrix[x][y]==1)
+                {
+                    binaryImage.setRGB(x,y,Color.RED.getRGB());
+                }
+            }
+                      
         }
     }
 
@@ -160,8 +181,8 @@ public class SeedRegionGrowing {
 
     //The condition to be satisfied
     protected boolean satisfiesCondition(Point point) {
-        //return isWithinRange(point);
         return isWithinRange(point);
+        //return isNearToMean(point);
     }
 
     protected boolean isWithinRange(Point point) {
@@ -190,10 +211,14 @@ public class SeedRegionGrowing {
         }
     }
 
-    public int[][] getBinaryImage() {
-        return this.binaryImage;
+    public int[][] getBinaryMatrix() {
+        return this.binaryMatrix;
     }
 
+    public BufferedImage getBinaryImage()
+    {
+        return binaryImage;
+    }
     /////////////May be useful....
     protected boolean isNearToMean(Point point) {
         int RGB, R, G, B;
@@ -235,7 +260,7 @@ public class SeedRegionGrowing {
         for (int i = 0; i < neighborList.size(); i++) {
             neighbor = neighborList.get(i);
             //If the neigbbor is also inside the region then,
-            if (binaryImage[neighbor.x][neighbor.y] == INSIDE) {
+            if (binaryMatrix[neighbor.x][neighbor.y] == INSIDE) {
                 neighborRGB = image.getRGB(neighbor.x, neighbor.y);
                 c = new Color(neighborRGB);
                 neighborR = c.getRed();

@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package facereplacementsystem;
+package CoreAlgorithms;
 
 import Helpers.FloatingCoordinate;
 import Jama.LUDecomposition;
@@ -93,7 +93,7 @@ public class Warper {
         applyLSM();
         initializeWarper();
         findWarpedMatrixSize();
-        initializeWarpedMatrix();
+        //initializeWarpedMatrix();
         findReverseMap();
     }
 
@@ -163,7 +163,7 @@ public class Warper {
     }
 
     //It finds out the size of the warped matrix
-    protected void findWarpedMatrixSize() {
+    /*protected void findWarpedMatrixSize() {
         warpedPoints = new Vector();
         int warpedX, warpedY;
         for (int x = 0; x < this.initialWidth; x++) {
@@ -181,11 +181,33 @@ public class Warper {
         }
         this.warpedWidth = maxWarpedX - minWarpedX;
         this.warpedHeight = maxWarpedY - minWarpedY;
-        
-    }
+    }*/
 
+    protected void findWarpedMatrixSize()
+    {
+        int warpedX, warpedY;
+       
+        for (int x = 0; x < this.initialWidth; x+=this.initialWidth-1) {
+            for (int y = 0; y < this.initialHeight; y+=this.initialHeight-1) {
+                //Get the warped coordinates of source image
+                Point mappedPoint = getMappedPoint(x, y);
+                warpedX = mappedPoint.x;
+                warpedY = mappedPoint.y;
+                //warpedPoints.add(new Point(warpedX, warpedY));
+                //Find out the warped width and warped height
+                minWarpedX = warpedX < minWarpedX ? warpedX : minWarpedX;
+                minWarpedY = warpedY < minWarpedY ? warpedY : minWarpedY;
+                maxWarpedX = warpedX > maxWarpedX ? warpedX : maxWarpedX;
+                maxWarpedY = warpedY > maxWarpedY ? warpedY : maxWarpedY;
+            }
+        }
+        this.warpedWidth = maxWarpedX - minWarpedX;
+        this.warpedHeight = maxWarpedY - minWarpedY;
+    }
+    
+   
     //Initialize the warped matrix
-    protected void initializeWarpedMatrix() {
+   /* protected void initializeWarpedMatrix() {
         int i = 0;
         warpedMatrix = new Point[initialWidth][initialHeight];
         for (int x = 0; x < initialWidth; x++) {
@@ -197,7 +219,7 @@ public class Warper {
                 i++;
             }
         }
-    }
+    }*/
 
     //It finds out the reverse map from the warped matrix to the original matrix
     protected void findReverseMap() {
@@ -222,6 +244,15 @@ public class Warper {
         }
     }
 
+    public Point getMappedPoint(int x, int y)
+    {
+        //Point mappedPoint = warpedMatrix[point.x][point.y];
+        Point mappedPoint = new Point();
+        mappedPoint.x = (int) (m1 * x + m2 * y + m3);
+        mappedPoint.y= (int) (m4 * x + m5 * y + m6);
+        System.out.println("warper ko mapeedPoint = "+mappedPoint);
+        return mappedPoint;
+    }
     //It checks if the (sumX,sumY) coordinate is within the area of image
     public boolean isWithinBounds(int x, int y, BufferedImage image) {
         if (x >= 0 && x < image.getWidth() && y >= 0 && y < image.getHeight()) {

@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package facereplacementsystem;
+package CoreAlgorithms;
 
 import Helpers.FloatingCoordinate;
 import java.awt.Point;
@@ -20,12 +20,11 @@ import java.awt.image.BufferedImage;
  */
 /*
  * How to use it?
- * 
- * 1. Create an object of this class:
- * ImageWarper imageWarper = new ImageWarper(image,sourceFeaturePoints, targetFeaturePoints);
- * 
- * 2. Get the warped Image:
- * BufferedImage warpedImage = imageWarper.runGet();
+ *
+ * 1. Create an object of this class: ImageWarper imageWarper = new
+ * ImageWarper(image,sourceFeaturePoints, targetFeaturePoints);
+ *
+ * 2. Get the warped Image: BufferedImage warpedImage = imageWarper.runGet();
  */
 public class ImageWarper {
 
@@ -34,6 +33,7 @@ public class ImageWarper {
     protected Warper warper;
     protected Interpolator interpolator;
     protected BufferedImage warpedImage;
+    protected BufferedImage uninterpolatedWarpedImage;
 
     public ImageWarper(BufferedImage image, Point[] sourceFeaturePoints, Point[] targetFeaturePoints) {
         this.image = image;
@@ -53,7 +53,35 @@ public class ImageWarper {
         warpedImage = interpolator.runGet();
     }
 
+   /* public void findUninterpolatedWarpedImage() {
+        uninterpolatedWarpedImage = new BufferedImage(warper.getWarpedWidth(), warper.getWarpedHeight(), BufferedImage.TYPE_INT_ARGB);
+        Point warpedMatrix[][] = warper.getWarpedMatrix();
+        for (int x = 0; x < image.getWidth(); x++) {
+            int curX, curY;
+            for (int y = 0; y < image.getHeight(); y++) {
+                try {
+                    curX = (int) warpedMatrix[x][y].x;
+                    curY = (int) warpedMatrix[x][y].y;
+                    uninterpolatedWarpedImage.setRGB(curX, curY, image.getRGB(x, y));
+                } catch (Exception e) {
+                    continue;
+                }
+            }
+        }
+    }*/
+    
+    /*public BufferedImage getUninterpolatedWarpedImage()
+    {
+        return this.uninterpolatedWarpedImage;
+    }*/
+
     public BufferedImage getWarpedImage() {
         return this.warpedImage;
+    }
+
+    //It returns the coordinate of the point mapped to warped image
+    public Point getMappedPoint(Point point) {
+        Point mappedPoint;
+        return warper.getMappedPoint(point.x,point.y);
     }
 }
