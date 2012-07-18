@@ -31,6 +31,7 @@ public class FaceReplacementSystem {
     protected Point[] sourceFeaturePoints, targetFeaturePoints;
     //Next step is to provide the coordinates of the corners of the rectangles drawn around the faces of source and target
     protected Rectangle sourceFaceRectangle, targetFaceRectangle;
+
     protected BufferedImage sourceRectangleImage, targetRectangleImage;
     //Next step is to detect the skin pixels in source image. They will be used to extract the source face.
     protected BufferedImage sourceSkinImage;
@@ -91,7 +92,7 @@ public class FaceReplacementSystem {
 
     
     
-    //The source image and the target image must be set
+    // The source image and the target image must be set
     public void setSourceImage(BufferedImage sourceImage) {
         this.sourceImage = sourceImage;
     }
@@ -123,6 +124,37 @@ public class FaceReplacementSystem {
     }
     public void setSourceFeaturePoints(Point[] featurePoints){
         this.sourceFeaturePoints=featurePoints;
+        this.setSourceFaceRectangle(getRectangleUsingFeaturePoints(featurePoints)); 
+    }
+    public void setTargetFeaturePoints(Point[] featurePoints){
+        this.targetFeaturePoints=featurePoints;
+        this.setTargetFaceRectangle(getRectangleUsingFeaturePoints(featurePoints));
+    }
+    
+    public BufferedImage getTargetRectangleImage() {
+        return targetRectangleImage;
+    }
+
+    public void setTargetRectangleImage(BufferedImage targetRectangleImage) {
+        this.targetRectangleImage = targetRectangleImage;
+    }
+    
+    public Rectangle getRectangleUsingFeaturePoints(Point[] featurePoints){
+        
+        Rectangle rectangleUsingFeaturePoints;
+        int xmin,xmax,ymin,ymax;
+        
+        xmin=xmax=featurePoints[0].x;
+        ymin=ymax=featurePoints[0].y;
+        
+        for(int i=1;i<featurePoints.length;i++){
+            xmin=featurePoints[i].x<xmin?featurePoints[i].x:xmin;
+            ymin=featurePoints[i].y<ymin?featurePoints[i].y:ymin;
+            xmax=featurePoints[i].x>xmax?featurePoints[i].x:xmax;
+            ymax=featurePoints[i].y>ymax?featurePoints[i].y:ymax;    
+        }
+        rectangleUsingFeaturePoints = new Rectangle(xmin, ymin, xmax-xmin, ymax-ymin);
+        return rectangleUsingFeaturePoints;
     }
 
     public int[][] getSourceSkinMatrix() {

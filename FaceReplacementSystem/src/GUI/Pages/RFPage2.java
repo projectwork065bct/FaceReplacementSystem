@@ -18,6 +18,7 @@ public class RFPage2 extends RFPage {
 //		addXY(ta,1,1,"f,f");
         rrv.setFRS(frs);
         rrv.setImage(frs.getSourceImage());
+        rrv.initializeRectangle("source");
         rrv.setBackground(Color.red);
         addXY(rrv, 1, 1, "f,f");
         helpText.setText("Draw rectangle around the face");
@@ -35,9 +36,9 @@ public class RFPage2 extends RFPage {
         int stopy=recY+height;
         Point a=rrv.toActualImagePoint(new Point(recX,recY));
         Point b=rrv.toActualImagePoint(new Point(stopx,stopy));
-        resized.x=a.x;resized.y=a.y;resized.width=a.x-b.x;resized.height=a.y-b.y;
+        resized.x=a.x;resized.y=a.y;resized.width=b.x-a.x;resized.height=b.y-a.y;
         frs.setSourceFaceRectangle(resized);
         System.out.println("rect height = "+frs.getSourceFaceRectangle().height);
-        pc.navigateTo(new RFPage3(app));
+        pc.navigateTo(new RFPage5(app));
     }
 }

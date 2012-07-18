@@ -23,7 +23,7 @@ import javax.swing.AbstractAction;
  */
 public class ResizableRectangleView extends IOSUIImageView {
 
-    Rectangle rect = new Rectangle(100, 100, 150, 150);
+    Rectangle rect ;//= new Rectangle(100, 100, 150, 150);
     Color rectColor = Color.YELLOW;
     FaceReplacementSystem frs;
     //constructors
@@ -66,8 +66,8 @@ public class ResizableRectangleView extends IOSUIImageView {
                 RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setPaint(Color.YELLOW);
         g2.draw(rect);
-        g2.setColor(Color.red);
-        g2.drawLine(0, 0, 50, 50);
+//        g2.setColor(Color.red);
+//        g2.drawLine(0, 0, 50, 50);
     }
 
     protected void printRectangleInfo() {
@@ -75,6 +75,30 @@ public class ResizableRectangleView extends IOSUIImageView {
     }
 
     //setters and getters
+    
+    public void initializeRectangle(String value){
+//        this.rect= new Rectangle(100, 100, 150, 150);
+        Rectangle actualRectInImage;
+        if("source".equals(value))
+            actualRectInImage=frs.getSourceFaceRectangle();
+        else if("target".equals(value))
+            actualRectInImage=frs.getTargetFaceRectangle();
+        else actualRectInImage=null;
+        
+        Rectangle resizedRectangle=new Rectangle();
+        int recX=actualRectInImage.x;
+        int recY=actualRectInImage.y;
+        int width=actualRectInImage.width;
+        int height=actualRectInImage.height;
+        int stopx=recX+width;
+        int stopy=recY+height;
+        
+        Point a=this.toDrawnImagePoint(new Point(recX,recY));
+        Point b=this.toDrawnImagePoint(new Point(stopx,stopy));
+        resizedRectangle.x=a.x;resizedRectangle.y=a.y;resizedRectangle.width=b.x-a.x;resizedRectangle.height=b.y-a.y;
+        this.rect=resizedRectangle;
+        //System.out.printf("%d,%d,%d,%d",rect.x,rect.y,rect.width,rect.height);
+    }
     public void setRectangle(Rectangle r) {
         this.rect = r;
     }
@@ -109,6 +133,23 @@ public class ResizableRectangleView extends IOSUIImageView {
 
     public void setFRS(FaceReplacementSystem frs) {
         this.frs = frs;
+//        Rectangle actualRectInImage=frs.getSourceFaceRectangle();
+//        
+//        Rectangle resizedRectangle=new Rectangle();
+//        int recX=actualRectInImage.x;
+//        int recY=actualRectInImage.y;
+//        int width=actualRectInImage.width;
+//        int height=actualRectInImage.height;
+//        int stopx=recX+width;
+//        int stopy=recY+height;
+//        
+//        System.out.printf("%d,%d,%d,%d",recX,recY,width,height);
+//        
+//        Point a=this.toDrawnImagePoint(new Point(recX,recY));
+//        Point b=this.toDrawnImagePoint(new Point(stopx,stopy));
+//        resizedRectangle.x=a.x;resizedRectangle.y=a.y;resizedRectangle.width=a.x-b.x;resizedRectangle.height=a.y-b.y;
+//        this.rect=resizedRectangle;
+//        
     }
 }
 

@@ -36,7 +36,7 @@ public class RFPage4 extends RFPage {
             }
             
             frs.setSourceFeaturePoints(tempFeaturePoints);
-            pc.navigateTo(new RFPage5(app));
+            pc.navigateTo(new RFPage2(app));
 	}
 
 	

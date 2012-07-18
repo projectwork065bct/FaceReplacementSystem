@@ -35,7 +35,7 @@ public class RFPage1 extends RFPage {
 //		ta.setForeground(Color.WHITE);
 //		addXY(ta,1,1,"f,f");
 
-        helpText.setText("HelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpTextHelpText");
+        helpText.setText("Help Text");
     }
 
     public void initializeComponents() {
@@ -92,6 +92,6 @@ public class RFPage1 extends RFPage {
 
     @Override
     public void goNext() {
-        pc.navigateTo(new RFPage2(app));
+        pc.navigateTo(new RFPage4(app));
     }
 }

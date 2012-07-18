@@ -38,7 +38,7 @@ public class IOSUIImageView extends IOSUIView {
         imageH = image.getHeight();
         aspectRatio = (float) imageW / imageH;
         adjustImageSize();
-        repaint();
+        //repaint();
     }
 
     //Resize Image according to the aspect ratio
@@ -86,4 +86,5 @@ public class IOSUIImageView extends IOSUIView {
             g.drawImage(image, 0, 0, newImageW, newImageH, null);
         }
     }
+    
 }

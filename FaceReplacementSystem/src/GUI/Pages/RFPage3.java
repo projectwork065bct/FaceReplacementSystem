@@ -20,6 +20,7 @@ ResizableRectangleView rrv = new ResizableRectangleView("600px", "400px");
 //		addXY(ta,1,1,"f,f");
         rrv.setFRS(frs);
         rrv.setImage(frs.getTargetImage());
+        rrv.initializeRectangle("target");
         rrv.setBackground(Color.red);
         addXY(rrv, 1, 1, "f,f");
         helpText.setText("Draw rectangle around the face");
@@ -37,8 +38,19 @@ ResizableRectangleView rrv = new ResizableRectangleView("600px", "400px");
             int stopy=recY+height;
             Point a=rrv.toActualImagePoint(new Point(recX,recY));
             Point b=rrv.toActualImagePoint(new Point(stopx,stopy));
-            resized.x=a.x;resized.y=a.y;resized.width=a.x-b.x;resized.height=a.y-b.y;
-            frs.setSourceFaceRectangle(resized);
-            pc.navigateTo(new RFPage4(app));
+            resized.x=a.x;resized.y=a.y;resized.width=b.x-a.x;resized.height=b.y-a.y;
+            frs.setTargetFaceRectangle(resized);
+            
+            //detect skin color
+            //frs.detectSkin();
+            //warp image
+            //frs.warp();
+            //color consistency
+            //frs.applyColorConsistency();
+            //replace face
+            //
+            //
+            
+            pc.navigateTo(new RFPage6(app));
 	}
 }

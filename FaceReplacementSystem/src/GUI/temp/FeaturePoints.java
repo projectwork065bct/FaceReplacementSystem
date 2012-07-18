@@ -46,7 +46,7 @@ public class FeaturePoints extends IOSUIImageView{
     public void paint(Graphics g){
         super.paintComponent(g);
         g.setColor(Color.red);
-        g.drawLine(41,41, 50, 50);
+        //g.drawLine(41,41, 50, 50);
         drawFeaturePoints(g);
     }
     
