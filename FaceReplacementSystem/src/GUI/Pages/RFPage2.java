@@ -3,6 +3,8 @@ package GUI.Pages;
 import GUI.Library.RFApplication;
 import GUI.temp.ResizableRectangleView;
 import java.awt.Color;
+import java.awt.Point;
+import java.awt.Rectangle;
 
 public class RFPage2 extends RFPage {
 
@@ -23,7 +25,18 @@ public class RFPage2 extends RFPage {
 
     @Override
     public void goNext() {
-        frs.setSourceFaceRectangle(rrv.getRectangle());
+        Rectangle r=rrv.getRectangle();
+        Rectangle resized=new Rectangle();
+        int recX=r.x;
+        int recY=r.y;
+        int width=r.width;
+        int height=r.height;
+        int stopx=recX+width;
+        int stopy=recY+height;
+        Point a=rrv.toActualImagePoint(new Point(recX,recY));
+        Point b=rrv.toActualImagePoint(new Point(stopx,stopy));
+        resized.x=a.x;resized.y=a.y;resized.width=a.x-b.x;resized.height=a.y-b.y;
+        frs.setSourceFaceRectangle(resized);
         System.out.println("rect height = "+frs.getSourceFaceRectangle().height);
         pc.navigateTo(new RFPage3(app));
     }

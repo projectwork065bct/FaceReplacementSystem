@@ -7,6 +7,8 @@ import hu.droidzone.iosui.IOSUILabel;
 import hu.droidzone.iosui.IOSUITextArea;
 import GUI.Library.RFApplication;
 import GUI.temp.ResizableRectangleView;
+import java.awt.Point;
+import java.awt.Rectangle;
 
 public class RFPage3 extends RFPage {
 ResizableRectangleView rrv = new ResizableRectangleView("600px", "400px");
@@ -25,6 +27,18 @@ ResizableRectangleView rrv = new ResizableRectangleView("600px", "400px");
         
 	@Override
 	public void goNext() {
-		pc.navigateTo(new RFPage4(app));
+            Rectangle r=rrv.getRectangle();
+            Rectangle resized=new Rectangle();
+            int recX=r.x;
+            int recY=r.y;
+            int width=r.width;
+            int height=r.height;
+            int stopx=recX+width;
+            int stopy=recY+height;
+            Point a=rrv.toActualImagePoint(new Point(recX,recY));
+            Point b=rrv.toActualImagePoint(new Point(stopx,stopy));
+            resized.x=a.x;resized.y=a.y;resized.width=a.x-b.x;resized.height=a.y-b.y;
+            frs.setSourceFaceRectangle(resized);
+            pc.navigateTo(new RFPage4(app));
 	}
 }

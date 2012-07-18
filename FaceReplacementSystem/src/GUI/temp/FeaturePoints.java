@@ -50,6 +50,10 @@ public class FeaturePoints extends IOSUIImageView{
         drawFeaturePoints(g);
     }
     
+    public Point[] getFeaturePoints(){
+        return featurePoints;
+    }
+    
     protected void setFeaturePoints(){
         
         featurePoints = new Point[8];

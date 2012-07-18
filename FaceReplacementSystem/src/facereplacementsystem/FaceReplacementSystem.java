@@ -85,9 +85,6 @@ public class FaceReplacementSystem {
         colorConsistentImage = meanColorShifter.getResultImage();
     }
     
-    
-    //
-    
     //Next step is to replace the face
     protected BufferedImage replacedFaceImage;
 
@@ -123,6 +120,9 @@ public class FaceReplacementSystem {
 
     public Point[] getSourceFeaturePoints() {
         return sourceFeaturePoints;
+    }
+    public void setSourceFeaturePoints(Point[] featurePoints){
+        this.sourceFeaturePoints=featurePoints;
     }
 
     public int[][] getSourceSkinMatrix() {
