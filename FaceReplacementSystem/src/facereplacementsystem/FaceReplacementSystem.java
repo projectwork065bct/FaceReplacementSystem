@@ -24,6 +24,9 @@ public class FaceReplacementSystem {
     //1st step is to set the source and target images
     protected BufferedImage sourceImage;
     protected BufferedImage targetImage;
+    
+    
+    
     //Next step is to define feature points for both source and the target
     protected Point[] sourceFeaturePoints, targetFeaturePoints;
     //Next step is to provide the coordinates of the corners of the rectangles drawn around the faces of source and target
@@ -100,6 +103,16 @@ public class FaceReplacementSystem {
         this.targetImage = targetImage;
     }
 
+    public BufferedImage getSourceImage() {
+        return sourceImage;
+    }
+
+    public BufferedImage getTargetImage() {
+        return targetImage;
+    }
+    
+    
+
     public BufferedImage getInterpolatedImage() {
         return interpolatedImage;
     }
@@ -131,4 +144,22 @@ public class FaceReplacementSystem {
     public Point[] getWarpedSourceFeaturePoints() {
         return warpedSourceFeaturePoints;
     }
+
+    public Rectangle getSourceFaceRectangle() {
+        return sourceFaceRectangle;
+    }
+
+    public void setSourceFaceRectangle(Rectangle sourceFaceRectangle) {
+        this.sourceFaceRectangle = sourceFaceRectangle;
+    }
+
+    public Rectangle getTargetFaceRectangle() {
+        return targetFaceRectangle;
+    }
+
+    public void setTargetFaceRectangle(Rectangle targetFaceRectangle) {
+        this.targetFaceRectangle = targetFaceRectangle;
+    }
+    
+    
 }
