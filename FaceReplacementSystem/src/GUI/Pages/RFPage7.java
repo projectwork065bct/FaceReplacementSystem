@@ -19,6 +19,6 @@ public class RFPage7 extends RFPage {
 
     @Override
     public void goNext() {
-         pc.navigateTo(new RFPage3(app));
+         //pc.navigateTo(new RFPage5(app));
     }
 }

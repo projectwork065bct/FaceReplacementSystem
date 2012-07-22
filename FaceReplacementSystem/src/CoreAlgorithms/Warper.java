@@ -4,12 +4,12 @@
  */
 package CoreAlgorithms;
 
+import Helpers.DeepCopier;
 import Helpers.FloatingCoordinate;
 import Jama.LUDecomposition;
 import Jama.Matrix;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.util.List;
 import java.util.Vector;
 
 /**
@@ -61,7 +61,7 @@ public class Warper {
 
     //It can be used to set the parameters, run the entire algorithm and get the result, the result being the reverse map
     public FloatingCoordinate[][] setRunGet(Point[] sourceFeaturePoints, Point[] targetFeaturePoints, int width, int height) {
-        setParameters(sourceFeaturePoints, targetFeaturePoints, width, height);
+        setParameters(sourceFeaturePoints, targetFeaturePoints, width, height, originIndex);
         return this.runGet();
     }
 
@@ -74,30 +74,56 @@ public class Warper {
     public Warper() {
     }
 
-    public Warper(Point[] sourceFeaturePoints, Point[] targetFeaturePoints, int width, int height) {
-        setParameters(sourceFeaturePoints, targetFeaturePoints, width, height);
+    //originIndex is the index inside the feature points array which is to be considered as the origin
+    public Warper(Point[] sourceFeaturePoints, Point[] targetFeaturePoints, int width, int height, int originIndex) {
+        setParameters(sourceFeaturePoints, targetFeaturePoints, width, height, originIndex);
     }
 
-    public void setParameters(Point[] sourceFeaturePoints, Point[] targetFeaturePoints, int width, int height) {
-        this.sourceFeaturePoints = sourceFeaturePoints;
-        this.targetFeaturePoints = targetFeaturePoints;
+    public void setParameters(Point[] sourceFeaturePoints, Point[] targetFeaturePoints, int width, int height, int originIndex) {
+        this.sourceFeaturePoints = DeepCopier.getPoints(sourceFeaturePoints);
+        this.targetFeaturePoints = DeepCopier.getPoints(targetFeaturePoints);
         this.initialWidth = width;
         this.initialHeight = height;
-                       
+        this.originIndex = originIndex;
     }
 
     //ImageWarper can be started after the feature points of the source and target images
     //have been specified. This is the main function of this class.
     public void warp() {
+        findHowMuchToShift();
+        shiftFeaturePoints();
         calculateValuesForLSM();
         applyLSM();
         initializeWarper();
+        mapFP();
         findWarpedMatrixSize();
-        //initializeWarpedMatrix();
+        decreaseMinFromMapped();
         findReverseMap();
     }
+    Point shifted[] = new Point[8];
 
+    //It finds out the length by which the source and the target coordinates need to be shifted by
+    protected void findHowMuchToShift() {
+        sourceShiftX = sourceFeaturePoints[originIndex].x;
+        sourceShiftY = sourceFeaturePoints[originIndex].y;
+        targetShiftX = targetFeaturePoints[originIndex].x;
+        targetShiftY = targetFeaturePoints[originIndex].y;
+    }
+    //It shifts the feature points to their respective "new origins"
+
+    protected void shiftFeaturePoints() {
+        for (int i = 0; i < sourceFeaturePoints.length; i++) {
+            sourceFeaturePoints[i].x -= sourceShiftX;
+            sourceFeaturePoints[i].y -= sourceShiftY;
+        }
+
+        for (int i = 0; i < targetFeaturePoints.length; i++) {
+            targetFeaturePoints[i].x -= targetShiftX;
+            targetFeaturePoints[i].y -= targetShiftY;
+        }
+    }
     //It calculates the values required by Least Square Method (LSM)
+
     protected void calculateValuesForLSM() {
         int sX, sY;//source
         int tX, tY;//target
@@ -162,35 +188,34 @@ public class Warper {
         m6 = (float) matrixY.get(2, 0);
     }
 
-    //It finds out the size of the warped matrix
-    /*protected void findWarpedMatrixSize() {
-        warpedPoints = new Vector();
-        int warpedX, warpedY;
-        for (int x = 0; x < this.initialWidth; x++) {
-            for (int y = 0; y < this.initialHeight; y++) {
-                //Get the warped coordinates of source image
-                warpedX = (int) (m1 * x + m2 * y + m3);
-                warpedY = (int) (m4 * x + m5 * y + m6);
-                warpedPoints.add(new Point(warpedX, warpedY));
-                //Find out the warped width and warped height
-                minWarpedX = warpedX < minWarpedX ? warpedX : minWarpedX;
-                minWarpedY = warpedY < minWarpedY ? warpedY : minWarpedY;
-                maxWarpedX = warpedX > maxWarpedX ? warpedX : maxWarpedX;
-                maxWarpedY = warpedY > maxWarpedY ? warpedY : maxWarpedY;
-            }
+    //It maps the feature points to warped image
+    protected void mapFP() {
+        mappedFeaturePoints = new Point[sourceFeaturePoints.length];
+        for (int i = 0; i < sourceFeaturePoints.length; i++) {
+            int sX = sourceFeaturePoints[i].x;
+            int sY = sourceFeaturePoints[i].y;
+            int tX = targetFeaturePoints[i].x;
+            int tY = targetFeaturePoints[i].y;
+            Point mappedPoint = getShiftedMappedPoint(sX, sY);
+            mappedFeaturePoints[i] = mappedPoint;
         }
-        this.warpedWidth = maxWarpedX - minWarpedX;
-        this.warpedHeight = maxWarpedY - minWarpedY;
-    }*/
 
-    protected void findWarpedMatrixSize()
-    {
+    }
+    //It finds out the size of the warped image. It does this by forward mapping (converting)
+    //source coordinate to warped coordinate and finding out the minimum and maximum values of 
+    //x and y
+
+    protected void findWarpedMatrixSize() {
         int warpedX, warpedY;
-       
-        for (int x = 0; x < this.initialWidth; x+=this.initialWidth-1) {
-            for (int y = 0; y < this.initialHeight; y+=this.initialHeight-1) {
+        int sourceStartX = -sourceShiftX;
+        int sourceStartY = -sourceShiftY;
+        int sourceEndX = this.initialWidth + sourceStartX;
+        int sourceEndY = this.initialHeight + sourceStartY;
+        int count = 0;
+        for (int x = sourceStartX; x < sourceEndX; x += this.initialWidth - 1) {
+            for (int y = sourceStartY; y < sourceEndY; y += this.initialHeight - 1) {
                 //Get the warped coordinates of source image
-                Point mappedPoint = getMappedPoint(x, y);
+                Point mappedPoint = getShiftedMappedPoint(x, y);
                 warpedX = mappedPoint.x;
                 warpedY = mappedPoint.y;
                 //warpedPoints.add(new Point(warpedX, warpedY));
@@ -204,23 +229,23 @@ public class Warper {
         this.warpedWidth = maxWarpedX - minWarpedX;
         this.warpedHeight = maxWarpedY - minWarpedY;
     }
-    
-   
-    //Initialize the warped matrix
-   /* protected void initializeWarpedMatrix() {
-        int i = 0;
-        warpedMatrix = new Point[initialWidth][initialHeight];
-        for (int x = 0; x < initialWidth; x++) {
-            warpedMatrix[x] = new Point[initialHeight];
-            for (int y = 0; y < initialHeight; y++) {
-                warpedMatrix[x][y] = new Point();
-                warpedMatrix[x][y].x = warpedPoints.get(i).x;
-                warpedMatrix[x][y].y = warpedPoints.get(i).y;
-                i++;
-            }
-        }
-    }*/
 
+    protected void decreaseMinFromMapped() {
+        for (int i = 0; i < shifted.length; i++) {
+            shifted[i] = new Point(mappedFeaturePoints[i].x - minWarpedX, mappedFeaturePoints[i].y - minWarpedY);
+            //System.out.printf("shifted fp(%d,%d)\n",shifted[i].x,shifted[i].y);
+        }
+    }
+
+    //Initialize the warped matrix
+   /*
+     * protected void initializeWarpedMatrix() { int i = 0; warpedMatrix = new
+     * Point[initialWidth][initialHeight]; for (int x = 0; x < initialWidth;
+     * x++) { warpedMatrix[x] = new Point[initialHeight]; for (int y = 0; y <
+     * initialHeight; y++) { warpedMatrix[x][y] = new Point();
+     * warpedMatrix[x][y].x = warpedPoints.get(i).x; warpedMatrix[x][y].y =
+     * warpedPoints.get(i).y; i++; } } }
+     */
     //It finds out the reverse map from the warped matrix to the original matrix
     protected void findReverseMap() {
         double denominator = m1 * m5 - m2 * m4;
@@ -229,7 +254,7 @@ public class Warper {
         int indexX, indexY;
         reverseMap = new FloatingCoordinate[warpedWidth][warpedHeight];
         for (int x = minWarpedX; x < maxWarpedX; x++) {
-            indexX = x - minWarpedX;    
+            indexX = x - minWarpedX;
             reverseMap[indexX] = new FloatingCoordinate[warpedHeight];
             for (int y = minWarpedY; y < maxWarpedY; y++) {
                 indexY = y - minWarpedY;
@@ -238,22 +263,38 @@ public class Warper {
                 xOriginal = (float) (numeratorX / denominator);
                 yOriginal = (float) (numeratorY / denominator);
                 reverseMap[indexX][indexY] = new FloatingCoordinate();
-                reverseMap[indexX][indexY].x = xOriginal;
-                reverseMap[indexX][indexY].y = yOriginal;
+                //The actual coordinates inside the image is found out by reshifting to the original origin
+                reverseMap[indexX][indexY].x = xOriginal + sourceShiftX;
+                reverseMap[indexX][indexY].y = yOriginal + sourceShiftY;
+
             }
         }
     }
 
-    public Point getMappedPoint(int x, int y)
-    {
+    //The point it provides is with reference to originIndex, not the top left corner of the image
+    //This is forward mapping
+    protected Point getShiftedMappedPoint(int x, int y) {
         //Point mappedPoint = warpedMatrix[point.x][point.y];
         Point mappedPoint = new Point();
         mappedPoint.x = (int) (m1 * x + m2 * y + m3);
-        mappedPoint.y= (int) (m4 * x + m5 * y + m6);
-        System.out.println("warper ko mapeedPoint = "+mappedPoint);
+        mappedPoint.y = (int) (m4 * x + m5 * y + m6);
         return mappedPoint;
     }
-    //It checks if the (sumX,sumY) coordinate is within the area of image
+
+    //This is a publc function
+    //It can map point (with origin at top left corner of source image) to point in target image 
+    //(with origin at top left corner)
+    public Point getMappedPoint(Point sourcePoint) {
+        Point mappedPoint = getShiftedMappedPoint(sourcePoint.x - sourceShiftX, sourcePoint.y - sourceShiftY);
+        mappedPoint.x -= minWarpedX;
+        mappedPoint.y -= minWarpedY;
+        return mappedPoint;
+    }
+
+    public Point getMappedOrigin() {
+        return shifted[originIndex];
+    }
+
     public boolean isWithinBounds(int x, int y, BufferedImage image) {
         if (x >= 0 && x < image.getWidth() && y >= 0 && y < image.getHeight()) {
             return true;
@@ -264,6 +305,7 @@ public class Warper {
     //Variables
     protected Point sourceFeaturePoints[];//Coordinate for each feature point
     protected Point targetFeaturePoints[];
+    protected Point mappedFeaturePoints[];
     protected int sumX = 0, sumY = 0;//Sum of sumX and sumY of sfp
     protected int sumOfXSquare = 0;//Sum of squares of sumX coordinates of source feature points (sfp)
     protected int sumOfYSquare = 0;//Sum of squares of sumY coordinates of source feature points
@@ -286,8 +328,11 @@ public class Warper {
     protected FloatingCoordinate reverseMap[][];//It maps the warped coordinates to the coordinates in the original
     //matrix. It stores the information of the reverse map. The coordinates are stored
     //[x1][y1].x = map from (x1,y1) of the warped matrix to the floating x-coordinate of the original image/matrix
-
+    protected int originIndex;
+    protected int sourceShiftX, sourceShiftY, targetShiftX, targetShiftY;
+    protected Point originPoint;
     //Setters and Getters
+
     public Point[] getSourceFeaturePoints() {
         return sourceFeaturePoints;
     }
@@ -327,6 +372,18 @@ public class Warper {
 
     public int getWarpedWidth() {
         return warpedWidth;
+    }
+
+    public int getMinWarpedX() {
+        return minWarpedX;
+    }
+
+    public int getMinWarpedY() {
+        return minWarpedY;
+    }
+
+    public Point getOriginPoint() {
+        return originPoint;
     }
 
     public FloatingCoordinate[][] getReverseMap() {

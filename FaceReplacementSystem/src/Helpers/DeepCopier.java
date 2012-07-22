@@ -4,6 +4,7 @@
  */
 package Helpers;
 
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 
 /**
@@ -21,5 +22,13 @@ public class DeepCopier {
             }
         }
         return deepCopiedImage;
+    }
+
+    public static Point[] getPoints(Point[] point) {
+        Point newPoint[] = new Point[point.length];
+        for (int i = 0; i < point.length; i++) {
+            newPoint[i] = new Point(point[i].x,point[i].y);
+        }
+        return newPoint;
     }
 }

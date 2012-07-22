@@ -30,12 +30,7 @@ public class RFPage1 extends RFPage {
     public RFPage1(RFApplication app) {
         super(app, "First Page");
         initializeComponents();
-//		IOSUITextArea ta = new IOSUITextArea(new Font("Verdana", Font.BOLD, 22));
-//		ta.setText("First Page Content");
-//		ta.setForeground(Color.WHITE);
-//		addXY(ta,1,1,"f,f");
-
-        helpText.setText("Help Text");
+        helpText.setText("Please load the images. The face in the source image replaces the face in the target image.");
     }
 
     public void initializeComponents() {
@@ -92,6 +87,6 @@ public class RFPage1 extends RFPage {
 
     @Override
     public void goNext() {
-        pc.navigateTo(new RFPage4(app));
+        pc.navigateTo(new RFPage2(app));
     }
 }
