@@ -1,12 +1,12 @@
 package GUI.Pages;
 
-import GUI.Library.RFApplication;
-import GUI.temp.FeaturePoints;
+import GUI.Components.RFApplication;
+import GUI.Components.FeaturePointsView;
 import java.awt.Point;
 
 public class RFPage2 extends RFPage {
 
-    FeaturePoints fp = new FeaturePoints("600px", "400px");
+    FeaturePointsView fp = new FeaturePointsView("600px", "400px");
     
 	public RFPage2(RFApplication app) {
 		super(app, "Fourth Page");

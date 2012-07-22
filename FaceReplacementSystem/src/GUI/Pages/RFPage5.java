@@ -5,8 +5,8 @@ import java.awt.Font;
 
 import hu.droidzone.iosui.IOSUILabel;
 import hu.droidzone.iosui.IOSUITextArea;
-import GUI.Library.RFApplication;
-import GUI.temp.ResizableRectangleView;
+import GUI.Components.RFApplication;
+import GUI.Components.ResizableRectangleView;
 import java.awt.Point;
 import java.awt.Rectangle;
 

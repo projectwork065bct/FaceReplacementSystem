@@ -1,4 +1,4 @@
-package GUI.Library;
+package GUI.Components;
 
 import hu.droidzone.iosui.IOSUIApplication;
 import hu.droidzone.iosui.IOSUIButton;

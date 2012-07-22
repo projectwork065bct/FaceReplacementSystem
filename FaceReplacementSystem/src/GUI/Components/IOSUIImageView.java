@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package GUI.Library;
+package GUI.Components;
 
 import hu.droidzone.iosui.IOSUIView;
 import java.awt.*;

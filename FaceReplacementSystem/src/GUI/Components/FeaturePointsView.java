@@ -2,9 +2,8 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package GUI.temp;
+package GUI.Components;
 
-import GUI.Library.IOSUIImageView;
 import facereplacementsystem.FaceReplacementSystem;
 import hu.droidzone.iosui.IOSUIApplication;
 import hu.droidzone.iosui.IOSUIButton;
@@ -25,11 +24,11 @@ import javax.swing.AbstractAction;
  *
  * @author ramsharan
  */
-public class FeaturePoints extends IOSUIImageView{
+public class FeaturePointsView extends IOSUIImageView{
     Point [] featurePoints;
     facereplacementsystem.FaceReplacementSystem frs;
     
-    public FeaturePoints(String colspecs,String rowspecs){
+    public FeaturePointsView(String colspecs,String rowspecs){
         super(colspecs,rowspecs);
         initComponents();
     }
@@ -70,7 +69,6 @@ public class FeaturePoints extends IOSUIImageView{
     }
     protected void drawFeaturePoints(Graphics g){
         int width=4;
-        System.out.println("i ma at drfepo"+featurePoints.length);
         //for marking first feature point
         for(int i=0;i<featurePoints.length;i++){
             g.drawLine(featurePoints[i].x-width, featurePoints[i].y-width, featurePoints[i].x+width, featurePoints[i].y+width);
@@ -82,7 +80,7 @@ public class FeaturePoints extends IOSUIImageView{
     
     public static void main(String [] args){
         IOSUIView content = new IOSUIView("p:g", "p:g");
-        FeaturePoints rajanPanel1 = new FeaturePoints("400px", "400px");
+        FeaturePointsView rajanPanel1 = new FeaturePointsView("400px", "400px");
         
         content.addXY(rajanPanel1, 1, 1);
 
@@ -108,12 +106,12 @@ public class FeaturePoints extends IOSUIImageView{
 }
 class FeatureAdapter extends MouseAdapter{
 
-    FeaturePoints fp;
+    FeaturePointsView fp;
     int width;
     int position=-1;
     boolean draggable=false;
     
-    FeatureAdapter(FeaturePoints fp) {
+    FeatureAdapter(FeaturePointsView fp) {
         this.fp=fp;
         this.width=3;
     }
@@ -136,36 +134,28 @@ class FeatureAdapter extends MouseAdapter{
     
     @Override
     public void mouseClicked(MouseEvent e){
-        System.out.println("mouse clicked");
 //        fp.featurePoints[0]=e.getPoint();
 //        fp.repaint();
     }
     @Override
     public void mousePressed(MouseEvent e){
-        System.out.println("mouse pressed");
         if(position!=-1){
             draggable=true;
-            System.out.println("draggable is true mouse pressed");
         }
     }
     @Override
     public void mouseDragged(MouseEvent e){
-        System.out.println("mouse dragged");
         if(draggable==true){
-            System.out.println("draggable is true");
             fp.featurePoints[position]=e.getPoint();
             fp.repaint();
         }
     }
     @Override
     public void mouseReleased(MouseEvent e){
-        System.out.println("mouse released");
         draggable=false;
     }
     @Override
     public void mouseMoved(MouseEvent e){
-       System.out.println("mouse moved");
        position = whichFeaturePoint(e.getPoint(), width);
-       System.out.println(position);
     }
 }

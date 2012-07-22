@@ -1,7 +1,7 @@
 package GUI.Pages;
 
-import GUI.Library.IOSUIImageView;
-import GUI.Library.RFApplication;
+import GUI.Components.IOSUIImageView;
+import GUI.Components.RFApplication;
 
 public class RFPage6 extends RFPage {
 

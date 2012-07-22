@@ -2,9 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package GUI.temp;
+package GUI.Components;
 
-import GUI.Library.IOSUIImageView;
+import GUI.Components.IOSUIImageView;
 import facereplacementsystem.FaceReplacementSystem;
 import hu.droidzone.iosui.IOSUIApplication;
 import hu.droidzone.iosui.IOSUIButton;

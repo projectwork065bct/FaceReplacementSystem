@@ -1,7 +1,7 @@
 package GUI.Pages;
 
 import hu.droidzone.iosui.*;
-import GUI.Library.RFApplication;
+import GUI.Components.RFApplication;
 import java.awt.Color;
 
 public abstract class RFPage extends IOSUIView implements IOSUIPage {

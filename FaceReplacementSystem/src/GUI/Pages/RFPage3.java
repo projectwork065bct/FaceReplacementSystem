@@ -1,7 +1,7 @@
 package GUI.Pages;
 
-import GUI.Library.RFApplication;
-import GUI.temp.ResizableRectangleView;
+import GUI.Components.RFApplication;
+import GUI.Components.ResizableRectangleView;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;

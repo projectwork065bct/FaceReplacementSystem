@@ -7,7 +7,7 @@ import java.awt.Font;
 import hu.droidzone.iosui.IOSUILabel;
 import hu.droidzone.iosui.IOSUITextArea;
 import hu.droidzone.iosui.IOSUIView;
-import GUI.Library.RFApplication;
+import GUI.Components.RFApplication;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
-import GUI.Library.IOSUIImageView;
+import GUI.Components.IOSUIImageView;
 
 public class RFPage1 extends RFPage {
 

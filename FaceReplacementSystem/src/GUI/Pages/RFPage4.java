@@ -1,14 +1,14 @@
 package GUI.Pages;
 
-import GUI.Library.RFApplication;
-import GUI.temp.FeaturePoints;
-import GUI.temp.ResizableRectangleView;
+import GUI.Components.RFApplication;
+import GUI.Components.FeaturePointsView;
+import GUI.Components.ResizableRectangleView;
 import java.awt.Color;
 import java.awt.Point;
 
 public class RFPage4 extends RFPage {
 
-    FeaturePoints fp = new FeaturePoints("600px", "400px");
+    FeaturePointsView fp = new FeaturePointsView("600px", "400px");
 
     public RFPage4(RFApplication app) {
         super(app, "Second Page");
