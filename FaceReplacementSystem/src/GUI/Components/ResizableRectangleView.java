@@ -4,7 +4,6 @@
  */
 package GUI.Components;
 
-import GUI.Components.IOSUIImageView;
 import facereplacementsystem.FaceReplacementSystem;
 import hu.droidzone.iosui.IOSUIApplication;
 import hu.droidzone.iosui.IOSUIButton;
@@ -167,7 +166,6 @@ class ResizerAdapter extends MouseAdapter {
     @Override
     public void mouseClicked(MouseEvent e) {
         component.printRectangleInfo();
-        System.out.println("Package is ResizableRectangleView");
     }
 
     @Override
@@ -175,7 +173,7 @@ class ResizerAdapter extends MouseAdapter {
         if (component.getCursor() != Cursor.getDefaultCursor()) {
             // If cursor is set for resizing, allow dragging.
             dragging = true;
-            System.out.println("Package is ResizableRectangleView");
+            
         }
     }
 

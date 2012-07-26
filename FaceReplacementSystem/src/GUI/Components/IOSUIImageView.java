@@ -4,6 +4,7 @@
  */
 package GUI.Components;
 
+import Helpers.DeepCopier;
 import hu.droidzone.iosui.IOSUIView;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -30,10 +31,7 @@ public class IOSUIImageView extends IOSUIView {
     }
 
     public void setImage(BufferedImage image) {
-        //LayoutManager l=getLayout();
-        //System.out.println(l.);
-        System.out.println("actual width = " + this.getWidth() + " height = " + this.getHeight());
-        this.image = image;
+        this.image = DeepCopier.getBufferedImage(image, image.getType());
         imageW = image.getWidth();
         imageH = image.getHeight();
         aspectRatio = (float) imageW / imageH;
@@ -86,5 +84,4 @@ public class IOSUIImageView extends IOSUIView {
             g.drawImage(image, 0, 0, newImageW, newImageH, null);
         }
     }
-    
 }

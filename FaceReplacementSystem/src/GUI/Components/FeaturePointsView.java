@@ -4,6 +4,7 @@
  */
 package GUI.Components;
 
+import DataStructures.FeaturePoint;
 import facereplacementsystem.FaceReplacementSystem;
 import hu.droidzone.iosui.IOSUIApplication;
 import hu.droidzone.iosui.IOSUIButton;
@@ -18,18 +19,17 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.AbstractAction;
 
-
-
 /**
  *
  * @author ramsharan
  */
-public class FeaturePointsView extends IOSUIImageView{
-    Point [] featurePoints;
+public class FeaturePointsView extends IOSUIImageView {
+
+    Point[] featurePoints;
     facereplacementsystem.FaceReplacementSystem frs;
-    
-    public FeaturePointsView(String colspecs,String rowspecs){
-        super(colspecs,rowspecs);
+
+    public FeaturePointsView(String colspecs, String rowspecs) {
+        super(colspecs, rowspecs);
         initComponents();
     }
 
@@ -38,50 +38,60 @@ public class FeaturePointsView extends IOSUIImageView{
         addMouseListener(fa);
         addMouseMotionListener(fa);
         setFeaturePoints();
-        
+
     }
-    
+
     @Override
-    public void paint(Graphics g){
+    public void paint(Graphics g) {
         super.paintComponent(g);
         g.setColor(Color.red);
         //g.drawLine(41,41, 50, 50);
         drawFeaturePoints(g);
     }
-    
-    public Point[] getFeaturePoints(){
+
+    public Point[] getFeaturePoints() {
         return featurePoints;
     }
-    
-    protected void setFeaturePoints(){
-        
+
+//    protected void setFeaturePoints() {
+//        featurePoints = new Point[8];
+//        featurePoints[FeaturePoint.LEFT_EYE] = new Point(140, 140);
+//        featurePoints[FeaturePoint.RIGHT_EYE] = new Point(170, 140);
+//        featurePoints[FeaturePoint.CENTER_OF_LIP] = new Point(155, 170);
+//        featurePoints[FeaturePoint.CHIN] = new Point(155, 185);
+//        featurePoints[FeaturePoint.LEFT_CHIN] = new Point(145, 180);
+//        featurePoints[FeaturePoint.RIGHT_CHIN] = new Point(165, 180);
+//        featurePoints[FeaturePoint.LEFT_CHEEK] = new Point(130, 170);
+//        featurePoints[FeaturePoint.RIGHT_CHEEK] = new Point(180, 170);
+//    }
+
+    protected void setFeaturePoints() {
         featurePoints = new Point[8];
-        
-        featurePoints[0]=new Point(140, 140);
-        featurePoints[1]=new Point(170, 140);
-        featurePoints[2]=new Point(155, 170);
-        featurePoints[3]=new Point(155, 185);
-        featurePoints[4]=new Point(145, 180);
-        featurePoints[5]=new Point(165, 180);
-        featurePoints[6]=new Point(130, 170);
-        featurePoints[7]=new Point(180, 170);
-        
+        featurePoints[FeaturePoint.LEFT_EYE] = new Point(140, 140);
+        featurePoints[FeaturePoint.RIGHT_EYE] = new Point(200, 140);
+        featurePoints[FeaturePoint.CENTER_OF_LIP] = new Point(170, 220);
+        featurePoints[FeaturePoint.CHIN] = new Point(170, 260);
+        featurePoints[FeaturePoint.LEFT_CHIN] = new Point(145, 240);
+        featurePoints[FeaturePoint.RIGHT_CHIN] = new Point(195, 240);
+        featurePoints[FeaturePoint.LEFT_CHEEK] = new Point(110, 220);
+        featurePoints[FeaturePoint.RIGHT_CHEEK] = new Point(230, 220);
     }
-    protected void drawFeaturePoints(Graphics g){
-        int width=4;
+
+    protected void drawFeaturePoints(Graphics g) {
+        int width = 4;
         //for marking first feature point
-        for(int i=0;i<featurePoints.length;i++){
-            g.drawLine(featurePoints[i].x-width, featurePoints[i].y-width, featurePoints[i].x+width, featurePoints[i].y+width);
-            g.drawLine(featurePoints[i].x-width, featurePoints[i].y+width, featurePoints[i].x+width, featurePoints[i].y-width);
-            g.drawString(""+i,featurePoints[i].x+width+2 ,featurePoints[i].y+width+2 );
+        for (int i = 0; i < featurePoints.length; i++) {
+            g.drawLine(featurePoints[i].x - width, featurePoints[i].y - width, featurePoints[i].x + width, featurePoints[i].y + width);
+            g.drawLine(featurePoints[i].x - width, featurePoints[i].y + width, featurePoints[i].x + width, featurePoints[i].y - width);
+            g.drawString("" + i, featurePoints[i].x + width + 2, featurePoints[i].y + width + 2);
         }
-        
+
     }
-    
-    public static void main(String [] args){
+
+    public static void main(String[] args) {
         IOSUIView content = new IOSUIView("p:g", "p:g");
         FeaturePointsView rajanPanel1 = new FeaturePointsView("400px", "400px");
-        
+
         content.addXY(rajanPanel1, 1, 1);
 
         IOSUIButton btn = new IOSUIButton(new AbstractAction(IOSI18N.get("msg.btn.exit")) {
@@ -99,63 +109,67 @@ public class FeaturePointsView extends IOSUIImageView{
     }
 
     public void setFRS(FaceReplacementSystem frs) {
-        this.frs=frs;
+        this.frs = frs;
     }
-    
-    
 }
-class FeatureAdapter extends MouseAdapter{
+
+class FeatureAdapter extends MouseAdapter {
 
     FeaturePointsView fp;
     int width;
-    int position=-1;
-    boolean draggable=false;
-    
+    int position = -1;
+    boolean draggable = false;
+
     FeatureAdapter(FeaturePointsView fp) {
-        this.fp=fp;
-        this.width=3;
+        this.fp = fp;
+        this.width = 5;
     }
-    public int whichFeaturePoint(Point p,int width){
-        int xmin,xmax,ymin,ymax;
-        for(int i=0;i<fp.featurePoints.length;i++){
-            xmin=fp.featurePoints[i].x-width;
-            xmax=fp.featurePoints[i].x+width;
-            ymin=fp.featurePoints[i].y-width;
-            ymax=fp.featurePoints[i].y+width;
-            
-            if(p.x>=xmin&&p.x<=xmax){
-                if(p.y>=ymin&&p.y<=ymax){
+
+    public int whichFeaturePoint(Point p, int width) {
+        int xmin, xmax, ymin, ymax;
+        for (int i = 0; i < fp.featurePoints.length; i++) {
+            xmin = fp.featurePoints[i].x - width;
+            xmax = fp.featurePoints[i].x + width;
+            ymin = fp.featurePoints[i].y - width;
+            ymax = fp.featurePoints[i].y + width;
+
+            if (p.x >= xmin && p.x <= xmax) {
+                if (p.y >= ymin && p.y <= ymax) {
                     return i;
                 }
             }
         }
         return -1;
     }
-    
+
     @Override
-    public void mouseClicked(MouseEvent e){
+    public void mouseClicked(MouseEvent e) {
 //        fp.featurePoints[0]=e.getPoint();
 //        fp.repaint();
     }
+
     @Override
-    public void mousePressed(MouseEvent e){
-        if(position!=-1){
-            draggable=true;
+    public void mousePressed(MouseEvent e) {
+        if (position != -1) {
+            draggable = true;
         }
     }
+
     @Override
-    public void mouseDragged(MouseEvent e){
-        if(draggable==true){
-            fp.featurePoints[position]=e.getPoint();
+    public void mouseDragged(MouseEvent e) {
+        if (draggable == true) {
+            fp.featurePoints[position] = e.getPoint();
             fp.repaint();
         }
     }
+
     @Override
-    public void mouseReleased(MouseEvent e){
-        draggable=false;
+    public void mouseReleased(MouseEvent e) {
+        draggable = false;
     }
+
     @Override
-    public void mouseMoved(MouseEvent e){
-       position = whichFeaturePoint(e.getPoint(), width);
+    public void mouseMoved(MouseEvent e) {
+        position = whichFeaturePoint(e.getPoint(), width);
     }
 }
