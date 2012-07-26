@@ -6,7 +6,7 @@ package CoreAlgorithms;
 
 import Helpers.ColorModelConverter;
 import Helpers.DeepCopier;
-import Helpers.FloatingCoordinate;
+import DataStructures.FloatingCoordinate;
 import Helpers.Statistics;
 import java.awt.Color;
 import java.awt.image.BufferedImage;

@@ -5,7 +5,7 @@
 package CoreAlgorithms;
 
 import Helpers.DeepCopier;
-import Helpers.FloatingCoordinate;
+import DataStructures.FloatingCoordinate;
 import Jama.LUDecomposition;
 import Jama.Matrix;
 import java.awt.Point;
@@ -338,7 +338,7 @@ public class Warper {
     }
 
     public void setSourceFeaturePoints(Point[] sourceFeaturePoints) {
-        this.sourceFeaturePoints = sourceFeaturePoints;
+        this.sourceFeaturePoints = DeepCopier.getPoints(sourceFeaturePoints);
     }
 
     public Point[] getTargetFeaturePoints() {
@@ -346,12 +346,12 @@ public class Warper {
     }
 
     public void setTargetFeaturePoints(Point[] targetFeaturePoints) {
-        this.targetFeaturePoints = targetFeaturePoints;
+        this.targetFeaturePoints = DeepCopier.getPoints(targetFeaturePoints);
     }
 
     public void setFeaturePoints(Point[] sourceFeaturePoints, Point[] targetFeaturePoints) {
-        this.sourceFeaturePoints = sourceFeaturePoints;
-        this.targetFeaturePoints = targetFeaturePoints;
+        this.sourceFeaturePoints = DeepCopier.getPoints(sourceFeaturePoints);
+        this.targetFeaturePoints = DeepCopier.getPoints(targetFeaturePoints);
     }
 
     public void setInitialHeight(int initialHeight) {

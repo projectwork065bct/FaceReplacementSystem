@@ -48,8 +48,8 @@ public class Shifter {
                     pastingPoint.y=i;
                     matchingDegreeValue=temporaryMatchingDegreeValue;
                 }
-                System.out.println("the matching degree value is "+temporaryMatchingDegreeValue);
-                System.out.println("the target paste point is "+targetPastePoint.x+" "+targetPastePoint.y);
+                //System.out.println("the matching degree value is "+temporaryMatchingDegreeValue);
+                //System.out.println("the target paste point is "+targetPastePoint.x+" "+targetPastePoint.y);
             }
         }
         return pastingPoint;
@@ -90,7 +90,6 @@ public class Shifter {
         }
         return (matchedValue-unmatchedValue-targetFacePixelNumber);
     }
-    
     private void setTargetFacePixelNo(){
         targetFacePixelNo=0;
         for(int i=0;i<target.length;i++)

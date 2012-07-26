@@ -5,7 +5,7 @@
 package CoreAlgorithms;
 
 import Helpers.DeepCopier;
-import Helpers.FloatingCoordinate;
+import DataStructures.FloatingCoordinate;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
@@ -40,8 +40,8 @@ public class ImageWarper {
 
     public ImageWarper(BufferedImage image, Point[] sourceFeaturePoints, Point[] targetFeaturePoints, int originIndex) {
         this.image = DeepCopier.getBufferedImage(image, image.getType());
-        this.sourceFeaturePoints = sourceFeaturePoints;
-        this.targetFeaturePoints = targetFeaturePoints;
+        this.sourceFeaturePoints = DeepCopier.getPoints(sourceFeaturePoints);
+        this.targetFeaturePoints = DeepCopier.getPoints(targetFeaturePoints);
         this.originIndex = originIndex;
     }
 

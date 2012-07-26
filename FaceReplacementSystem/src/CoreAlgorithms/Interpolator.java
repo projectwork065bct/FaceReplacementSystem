@@ -5,7 +5,7 @@
 package CoreAlgorithms;
 
 import Helpers.DeepCopier;
-import Helpers.FloatingCoordinate;
+import DataStructures.FloatingCoordinate;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
