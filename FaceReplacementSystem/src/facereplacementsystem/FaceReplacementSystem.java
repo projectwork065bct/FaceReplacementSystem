@@ -11,6 +11,7 @@ import CoreAlgorithms.SkinColorDetectorUsingThreshold;
 import CurveFitting.SquarePolynomial_002;
 import CurveFitting.SquarePolynomial_003;
 import DataStructures.FeaturePoint;
+import H_Matrix.ImageMat;
 import Helpers.DeepCopier;
 import Helpers.MeanColorShifter;
 import Helpers.SkinMatrixProvider;
@@ -221,7 +222,29 @@ public class FaceReplacementSystem {
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="Next step is to extract the boundary around the face">
     int[][] sourceBoundaryFilledFaceMatrix = null;
-
+    //ImageMat im=new ImageMat();
+    /*
+     * ImageMat is the function for matrix operation. Static functions of ImageMat are used.
+     * But since it is notified that it is bad programming practice to use static functions ,
+     *  it could be made non static.
+     * 
+     * int [][] boundaryOfAnImage=ImageMat.findBoundary(int[][] binaryMatrix, int w, int h);
+     * int[][] horizontalHoleFilledMatrix=ImageMat.holeFillAccordingToBoundary(matrix,w,h);
+     * then invert the matrix ImageMat.invert(matrix, width, height);
+     * then again hole fill then again invert and hole fill.
+     */
+    
+    /*int matrix=getRectangleMatrix();//i dont know which one is the matrix.
+     * int shrinkCount=5;
+        matrix=ImageMat.shrinkMatrix(matrix, width, height, shrinkCount);//shrunk matrix
+        matrix=ImageMat.growMatrix(matrix, width, height, shrinkCount);//grown matrix
+        
+        int [][] fineMatrix=ImageMat.holeFillAccordingToBoundary(matrix,width,height);
+        int [][] inverseMatrix=ImageMat.invertMatrix(fineMatrix, width, height);
+        int [][] finerMatrix=ImageMat.holeFillAccordingToBoundary(inverseMatrix,height,width);
+        int [][] erectMatrix=ImageMat.invertMatrix(finerMatrix, height, width);
+        * sourceBoundaryFilledFaceMatrix=erectMatrix;
+     */
     public void extractBoundary() {
     }
     //</editor-fold>
