@@ -5,12 +5,20 @@
 package facereplacementsystem;
 
 import CoreAlgorithms.ImageWarper;
+import CoreAlgorithms.Shifter;
 import CoreAlgorithms.SkinColorDetector;
 import CoreAlgorithms.SkinColorDetectorUsingThreshold;
+import CurveFitting.SquarePolynomial_002;
+import CurveFitting.SquarePolynomial_003;
+import DataStructures.FeaturePoint;
+import Helpers.DeepCopier;
 import Helpers.MeanColorShifter;
+import Helpers.SkinMatrixProvider;
+import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 /**
  *
@@ -60,9 +68,11 @@ public class FaceReplacementSystem {
         this.sourceFeaturePoints = featurePoints;
         this.setSourceFaceRectangle(getRectangleUsingFeaturePoints(featurePoints));
     }
+    protected Point[] actualTargetFeaturePoints;
 
     public void setTargetFeaturePoints(Point[] featurePoints) {
-        this.targetFeaturePoints = featurePoints;
+        this.actualTargetFeaturePoints = DeepCopier.getPoints(featurePoints);
+        this.targetFeaturePoints = DeepCopier.getPoints(featurePoints);
         this.setTargetFaceRectangle(getRectangleUsingFeaturePoints(featurePoints));
     }
     // </editor-fold>
@@ -112,6 +122,62 @@ public class FaceReplacementSystem {
         return rectangleUsingFeaturePoints;
     }
     // </editor-fold>
+    // <editor-fold defaultstate="collapsed" desc="Next step is to draw the chin curve">
+    List<Point> sourceLeftEdge = null;
+    List<Point> sourceRightEdge = null;
+    List<Point> targetLeftEdge = null;
+    List<Point> targetRightEdge = null;
+
+    public List<Point> getSourceLeftEdge() {
+        return sourceLeftEdge;
+    }
+
+    public List<Point> getSourceRightEdge() {
+        return sourceRightEdge;
+    }
+
+    public List<Point> getTargetLeftEdge() {
+        return targetLeftEdge;
+    }
+
+    public List<Point> getTargetRightEdge() {
+        return targetRightEdge;
+    }
+
+    public void FindSourceCurves() {
+        SquarePolynomial_002 sq = new SquarePolynomial_002();
+        Point[] pLL = {sourceFeaturePoints[FeaturePoint.CHIN], sourceFeaturePoints[FeaturePoint.LEFT_CHIN],
+            sourceFeaturePoints[FeaturePoint.LEFT_CHEEK]};
+        //setting the example points, at least 3 required
+        sq.setPoints(pLL);
+        Point[] pl = {sourceFeaturePoints[FeaturePoint.LEFT_CHEEK], sourceFeaturePoints[FeaturePoint.CHIN]};
+        sourceLeftEdge = sq.getPoints(pl);//getting the fitted Points
+
+        SquarePolynomial_002 sq2 = new SquarePolynomial_002();
+        Point[] p11 = {sourceFeaturePoints[FeaturePoint.CHIN], sourceFeaturePoints[FeaturePoint.RIGHT_CHIN],
+            sourceFeaturePoints[FeaturePoint.RIGHT_CHEEK]};
+        sq2.setPoints(p11);
+        Point[] example = {sourceFeaturePoints[FeaturePoint.CHIN], sourceFeaturePoints[FeaturePoint.RIGHT_CHEEK]};
+        sourceRightEdge = sq2.getPoints(example);
+    }
+
+    public void FindTargetCurves() {
+        SquarePolynomial_003 sq = new SquarePolynomial_003();
+        Point[] pLL = {targetFeaturePoints[FeaturePoint.CHIN], targetFeaturePoints[FeaturePoint.LEFT_CHIN],
+            targetFeaturePoints[FeaturePoint.LEFT_CHEEK]};
+        //setting the example points, at least 3 required
+        sq.setPoints(pLL);
+        Point[] pl = {targetFeaturePoints[FeaturePoint.LEFT_CHEEK], targetFeaturePoints[FeaturePoint.CHIN]};
+        targetLeftEdge = sq.getPoints(pl);//getting the fitted Points
+
+        SquarePolynomial_003 sq2 = new SquarePolynomial_003();
+        Point[] p11 = {targetFeaturePoints[FeaturePoint.CHIN], targetFeaturePoints[FeaturePoint.RIGHT_CHEEK],
+            targetFeaturePoints[FeaturePoint.RIGHT_CHIN]};
+        sq2.setPoints(p11);
+        Point[] example = {targetFeaturePoints[FeaturePoint.CHIN], targetFeaturePoints[FeaturePoint.RIGHT_CHEEK]};
+        targetRightEdge = sq2.getPoints(example);
+    }
+    //</editor-fold>
     // <editor-fold defaultstate="collapsed" desc="The fourth step is to detect the skin in source and target">
     //Next step is to detect the skin pixels in source image. They will be used to extract the source face.
     protected BufferedImage sourceSkinImage, targetSkinImage;
@@ -153,6 +219,12 @@ public class FaceReplacementSystem {
         return targetSkinMatrix;
     }
     // </editor-fold>
+    // <editor-fold defaultstate="collapsed" desc="Next step is to extract the boundary around the face">
+    int[][] sourceBoundaryFilledFaceMatrix = null;
+
+    public void extractBoundary() {
+    }
+    //</editor-fold>
     // <editor-fold defaultstate="collapsed" desc="The fifth step is to warp the source face according to the fp of target face and interpolate the warped face">
     //Next step is to warp the image. The source image should be warped according to the feature points of the target image.
     protected ImageWarper imageWarper;
@@ -163,6 +235,7 @@ public class FaceReplacementSystem {
     //origin of the warped image
     protected Point warpedOrigin;
     //warp + interpolate
+    protected int[][] warpedSkinMatrix;
 
     public void warp(int originIndex) {
         Point[] sfp = new Point[this.sourceFeaturePoints.length];
@@ -172,28 +245,107 @@ public class FaceReplacementSystem {
             sfp[i] = new Point(this.sourceFeaturePoints[i].x - this.sourceFaceRectangle.x, this.sourceFeaturePoints[i].y - this.sourceFaceRectangle.y);
             tfp[i] = new Point(this.targetFeaturePoints[i].x - this.targetFaceRectangle.x, this.targetFeaturePoints[i].y - this.targetFaceRectangle.y);
         }
+        
         imageWarper = new ImageWarper(sourceSkinImage, sfp, tfp, originIndex);
         warpedImage = imageWarper.runGet();
+
+        warpedSkinMatrix = SkinMatrixProvider.getSkinMatrix(warpedImage);
         this.warpedOrigin = imageWarper.getMappedOrigin();
+        warpedImage.getGraphics().setColor(Color.RED);
+        warpedImage.getGraphics().fillOval(warpedOrigin.x - 5, warpedOrigin.y - 5, 10, 10);
+
     }
 
     public BufferedImage getWarpedImage() {
         return warpedImage;
     }
+
+    public Point getWarpedOrigin() {
+        return warpedOrigin;
+    }
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="The sixth step is to apply color consistency to the image">
     //Next step is to adjust the consistency of the image
     protected BufferedImage colorConsistentImage;
+
     public void applyColorConsistency() {
         //Adjust the color of the warped image according to the color of the target image
-        meanColorShifter = new MeanColorShifter(warpedImage, targetImage);
-        colorConsistentImage = meanColorShifter.getResultImage();
+        meanColorShifter = new MeanColorShifter(warpedImage, targetSkinImage);
+        colorConsistentImage = meanColorShifter.runGet();
     }
     // </editor-fold>
-    //Next step is to replace the face
+    // <editor-fold defaultstate="collapsed" desc="The next step is to shift the position of the replacement point">
+    protected Point replacementPoint;
+
+    public Point getReplacementPoint() {
+        return replacementPoint;
+    }
+
+    //It finds out the best point at which the image is to be replaced
+    public void shiftReplacementPoint() {
+        Shifter shifter = new Shifter();
+        shifter.setSource(warpedSkinMatrix);
+        shifter.setSourcePastePoint(warpedOrigin);
+        shifter.setTarget(targetSkinMatrix);
+        Point targetOriginPoint = targetFeaturePoints[FeaturePoint.CHIN];
+        targetOriginPoint.x -= targetFaceRectangle.x;
+        targetOriginPoint.y -= targetFaceRectangle.y;
+        shifter.setTargetPastePoint(targetOriginPoint);
+        replacementPoint = shifter.getPastingPoint(15, 15);
+        replacementPoint.x += targetFaceRectangle.x;
+        replacementPoint.y += targetFaceRectangle.y;
+    }
+    //</editor-fold>
+    // <editor-fold defaultstate="collapsed" desc="The next step is to replace face">
     protected BufferedImage replacedFaceImage;
+
+//    public void replaceFace() {
+//        warp(FeaturePoint.CHIN);
+//        applyColorConsistency();
+//        replacedFaceImage = DeepCopier.getBufferedImage(targetImage, BufferedImage.TYPE_INT_ARGB);
+//        shiftReplacementPoint();
+//        //Point replacementPoint = new Point(bestPointToReplace.x - warpedOrigin.x, bestPointToReplace.y - warpedOrigin.y);
+//        for (int x = 0; x < colorConsistentImage.getWidth(); x++) {
+//            for (int y = 0; y < colorConsistentImage.getHeight(); y++) {
+//                Color c = new Color(colorConsistentImage.getRGB(x, y), true);
+//                if (c.getAlpha() < 255) {
+//                    continue;
+//                }
+//                try {
+//                    replacedFaceImage.setRGB(x - warpedOrigin.x + replacementPoint.x, y - warpedOrigin.y + replacementPoint.y, c.getRGB());
+//                } catch (Exception e) {
+//                    continue;
+//                }
+//            }
+//        }
+//    }
+    public void replaceFace() {
+        warp(FeaturePoint.CHIN);
+        applyColorConsistency();
+        replacedFaceImage = DeepCopier.getBufferedImage(targetImage, BufferedImage.TYPE_INT_ARGB);
+        //shiftReplacementPoint();
+        //Point replacementPoint = new Point(bestPointToReplace.x - warpedOrigin.x, bestPointToReplace.y - warpedOrigin.y);
+        for (int x = 0; x < colorConsistentImage.getWidth(); x++) {
+            for (int y = 0; y < colorConsistentImage.getHeight(); y++) {
+                Color c = new Color(colorConsistentImage.getRGB(x, y), true);
+                if (c.getAlpha() < 255) {
+                    continue;
+                }
+                try {
+                    replacedFaceImage.setRGB(x - warpedOrigin.x + targetFeaturePoints[FeaturePoint.CHIN].x, y - warpedOrigin.y + targetFeaturePoints[FeaturePoint.CHIN].y, c.getRGB());
+                    //replacedFaceImage.setRGB(x - warpedOrigin.x + replacementPoint.x, y - warpedOrigin.y + replacementPoint.y, c.getRGB());
+                } catch (Exception e) {
+                    continue;
+                }
+            }
+        }
+        replacedFaceImage.getGraphics().fillOval(targetFeaturePoints[FeaturePoint.CHIN].x - 5, targetFeaturePoints[FeaturePoint.CHIN].y - 5, 10, 10);
+        //replacedFaceImage.getGraphics().fillOval(actualTargetFeaturePoints[FeaturePoint.CHIN].x - 5, actualTargetFeaturePoints[FeaturePoint.CHIN].y - 5, 10, 10);
+
+    }
 
     public BufferedImage getReplacedFaceImage() {
         return replacedFaceImage;
     }
+    //</editor-fold>
 }
