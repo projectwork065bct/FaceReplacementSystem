@@ -4,6 +4,7 @@
  */
 package Helpers;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 
@@ -65,5 +66,14 @@ public class ColorModelConverter {
             }
         }
         return YCbCr;
+    }
+
+    public static Color getTransparentColor(Color color) {
+        int r = color.getRed();
+        int g = color.getGreen();
+        int b = color.getBlue();
+        int a = 0;//transparent
+        Color transparentColor = new Color(r, g, b, a);
+        return transparentColor;
     }
 }

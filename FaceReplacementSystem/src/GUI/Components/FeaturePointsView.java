@@ -26,8 +26,7 @@ import javax.swing.AbstractAction;
 public class FeaturePointsView extends IOSUIImageView {
 
     Point[] featurePoints;
-    facereplacementsystem.FaceReplacementSystem frs;
-
+    
     public FeaturePointsView(String colspecs, String rowspecs) {
         super(colspecs, rowspecs);
         initComponents();
@@ -108,9 +107,6 @@ public class FeaturePointsView extends IOSUIImageView {
         IOSUIApplication.startIOSUIApplication(600, 400, content, hdr);
     }
 
-    public void setFRS(FaceReplacementSystem frs) {
-        this.frs = frs;
-    }
 }
 
 class FeatureAdapter extends MouseAdapter {

@@ -75,14 +75,14 @@ public class ResizableRectangleView extends IOSUIImageView {
 
     //setters and getters
     
-    public void initializeRectangle(String value){
+    public void initializeRectangle(Rectangle rect){
 //        this.rect= new Rectangle(100, 100, 150, 150);
-        Rectangle actualRectInImage;
-        if("source".equals(value))
-            actualRectInImage=frs.getSourceFaceRectangle();
-        else if("target".equals(value))
-            actualRectInImage=frs.getTargetFaceRectangle();
-        else actualRectInImage=null;
+        Rectangle actualRectInImage = rect;
+//        if("source".equals(value))
+//            actualRectInImage=frs.getSourceFaceRectangle();
+//        else if("target".equals(value))
+//            actualRectInImage=frs.getTargetFaceRectangle();
+//        else actualRectInImage=null;
         
         Rectangle resizedRectangle=new Rectangle();
         int recX=actualRectInImage.x;

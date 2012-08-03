@@ -88,7 +88,6 @@ public class MeanColorShifter {
                     if (shiftedB < 0) {
                         shiftedB = 0;
                     }
-
                     resultImage.setRGB(x, y, new Color(shiftedR, shiftedG, shiftedB).getRGB());
                 }
             }

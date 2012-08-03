@@ -5,6 +5,7 @@
 package CoreAlgorithms;
 
 import Helpers.ColorModelConverter;
+import Helpers.DeepCopier;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
@@ -15,9 +16,9 @@ import java.util.Stack;
 /**
  *
  * @author Robik Singh Shrestha
- * 
- * 1. Provide the image and seedStack via constructor
- * 2. Retrieve the binaryMatrix. 1= similar to the seeds, 0=different from seeds
+ *
+ * 1. Provide the image and seedStack via constructor 2. Retrieve the
+ * binaryMatrix. 1= similar to the seeds, 0=different from seeds
  */
 public class SeedRegionGrowing {
 
@@ -28,6 +29,7 @@ public class SeedRegionGrowing {
     public static final int INSIDE = 1, OUTSIDE = 0, UNDECIDED = 2;
     protected int[][] binaryMatrix;
     protected BufferedImage binaryImage;
+    protected BufferedImage imageShowingRegion;
     protected float[][][] YCbCr;
     protected int minX, maxX, minY, maxY;
     //The following variables are for the condition that the pixel lies within the range of colors of  seed pixels
@@ -37,8 +39,11 @@ public class SeedRegionGrowing {
 
     //Constructor
     public SeedRegionGrowing(BufferedImage image, Stack<Point> seedStack) {
-        this.image = image;
-        this.seedStack = seedStack;
+        this.image = DeepCopier.getBufferedImage(image, BufferedImage.TYPE_INT_ARGB);
+        this.seedStack = new Stack<Point>();
+        for (int i = 0; i < seedStack.size(); i++) {
+            this.seedStack.push(seedStack.get(i));
+        }
         initializeBinaryImage();
         findYCbCr();
         initializeSeedPixels();
@@ -143,20 +148,26 @@ public class SeedRegionGrowing {
 
         }
     }
-    
-    public void createBinaryImage()
-    {
-        binaryImage = image;
-        for(int x=0;x<image.getWidth();x++)
-        {
-            for(int y=0;y<image.getHeight();y++)
-            {
-                if(binaryMatrix[x][y]==1)
-                {
-                    binaryImage.setRGB(x,y,Color.RED.getRGB());
+
+    public void createImageShowingRegion(Color c) {
+        imageShowingRegion = DeepCopier.getBufferedImage(image, image.getType());
+        for (int x = 0; x < image.getWidth(); x++) {
+            for (int y = 0; y < image.getHeight(); y++) {
+                if (binaryMatrix[x][y] == 1) {
+                    imageShowingRegion.setRGB(x, y, c.getRGB());
                 }
             }
-                      
+        }
+    }
+
+    public void createBinaryImage() {
+        binaryImage = DeepCopier.getBufferedImage(image, image.getType());
+        for (int x = 0; x < binaryImage.getWidth(); x++) {
+            for (int y = 0; y < binaryImage.getHeight(); y++) {
+                if (binaryMatrix[x][y] != INSIDE) {
+                    binaryImage.setRGB(x, y, ColorModelConverter.getTransparentColor(new Color(binaryImage.getRGB(x, y))).getRGB());
+                }
+            }
         }
     }
 
@@ -215,11 +226,15 @@ public class SeedRegionGrowing {
         return this.binaryMatrix;
     }
 
-    public BufferedImage getBinaryImage()
-    {
+    public BufferedImage getBinaryImage() {
         return binaryImage;
     }
+
+    public BufferedImage getImageShowingRegion() {
+        return imageShowingRegion;
+    }
     /////////////May be useful....
+
     protected boolean isNearToMean(Point point) {
         int RGB, R, G, B;
         Color c;

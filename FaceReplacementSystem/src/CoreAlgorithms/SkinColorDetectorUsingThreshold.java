@@ -24,6 +24,7 @@ public class SkinColorDetectorUsingThreshold extends SkinColorDetector {
         generateSkinImage();
     }
 
+    //Apply global thresholding to extract skin pixels
     protected void detectSkinUsingYCbCr() {
         float Y, Cb, Cr;
         for (int x = 0; x < width; x++) {

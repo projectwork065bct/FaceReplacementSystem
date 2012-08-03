@@ -110,7 +110,7 @@ public class Shifter {
     }
 
     public void setTargetPastePoint(Point targetPastePoint) {
-        this.targetPastePoint = targetPastePoint;
+        this.targetPastePoint = new Point(targetPastePoint);
     }
     
 }

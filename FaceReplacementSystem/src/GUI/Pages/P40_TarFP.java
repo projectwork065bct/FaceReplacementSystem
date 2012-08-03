@@ -1,32 +1,24 @@
 package GUI.Pages;
 
-import GUI.Components.RFApplication;
 import GUI.Components.FeaturePointsView;
-import GUI.Components.ResizableRectangleView;
-import java.awt.Color;
+import GUI.Components.RFApplication;
 import java.awt.Point;
 
-public class RFPage4 extends RFPage {
+public class P40_TarFP extends RFPage {
 
     FeaturePointsView fp = new FeaturePointsView("600px", "400px");
 
-    public RFPage4(RFApplication app) {
-        super(app, "Second Page");
-//		IOSUITextArea ta = new IOSUITextArea(new Font("Verdana", Font.BOLD, 22));
-//		ta.setText("Second Page Content");
-//		ta.setForeground(Color.WHITE);
-//		addXY(ta,1,1,"f,f");
-        fp.setFRS(frs);
+    public P40_TarFP(RFApplication app) {
+        super(app, "Specify Feature Points");
         fp.setImage(frs.getTargetImage());
         addXY(fp, 1, 1, "f,f");
-
         helpText.setText("Specify the feature points on the face.");
     }
 
     @Override
     public void goNext() {
         setTargetFeaturePoints();
-        pc.navigateTo(new RFPage5(app));
+        pc.navigateTo(new P50_TarRect(app));
     }
 
     //Saves the target feature points

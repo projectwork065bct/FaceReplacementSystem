@@ -1,14 +1,9 @@
 package GUI.Pages;
 
-import hu.droidzone.iosui.IOSUIButton;
-import java.awt.Color;
-import java.awt.Font;
-
-import hu.droidzone.iosui.IOSUILabel;
-import hu.droidzone.iosui.IOSUITextArea;
-import hu.droidzone.iosui.IOSUIView;
+import GUI.Components.IOSUIImageView;
 import GUI.Components.RFApplication;
-import java.awt.Dimension;
+import hu.droidzone.iosui.IOSUIButton;
+import hu.droidzone.iosui.IOSUIView;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -18,30 +13,28 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
-import GUI.Components.IOSUIImageView;
 
-public class RFPage1 extends RFPage {
-
+public class P10_LoadImage extends RFPage {
+    
     protected BufferedImage sourceImage, targetImage;
-    protected IOSUIView mainView;
     protected IOSUIButton loadSourceBtn, loadTargetBtn;
     protected IOSUIImageView sourceView, targetView;
 
-    public RFPage1(RFApplication app) {
-        super(app, "First Page");
+    public P10_LoadImage(RFApplication app) {
+        super(app, "Load Images");
         initializeComponents();
         helpText.setText("Please load the images. The face in the source image replaces the face in the target image.");
     }
 
     public void initializeComponents() {
-        mainView = new IOSUIView("350px,50px,350px", "350px,50px");
+        mainView = new IOSUIView("350px,50px,350px","350px,50px");
         initializeImageViews();
         initializeLoadBtns();
         mainView.addXY(sourceView, 1, 1);
         mainView.addXY(targetView, 3, 1);
         mainView.addXY(loadSourceBtn, 1, 2);
         mainView.addXY(loadTargetBtn, 3, 2);
-        addXY(mainView, 1, 1);
+        addXY(mainView,1,1);
     }
 
     public void initializeImageViews() {
@@ -52,7 +45,6 @@ public class RFPage1 extends RFPage {
     //It loads the images
     public void initializeLoadBtns() {
         loadSourceBtn = new IOSUIButton(new AbstractAction("Load Source") {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 sourceImage = chooseImage();
@@ -62,7 +54,6 @@ public class RFPage1 extends RFPage {
         });
 
         loadTargetBtn = new IOSUIButton(new AbstractAction("Load Target") {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 targetImage = chooseImage();
@@ -80,13 +71,13 @@ public class RFPage1 extends RFPage {
         try {
             image = ImageIO.read(file);
         } catch (IOException ex) {
-            Logger.getLogger(RFPage1.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(P10_LoadImage.class.getName()).log(Level.SEVERE, null, ex);
         }
         return image;
     }
 
     @Override
     public void goNext() {
-        pc.navigateTo(new RFPage2(app));
+        pc.navigateTo(new P20_SrcFP(app));
     }
 }

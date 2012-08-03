@@ -54,9 +54,9 @@ public class ImageMat {
      */
     public static int[][] findBoundary(int[][] binaryMatrix, int w, int h) {
         int[][] boundary = new int[2][h];
-        System.out.println("the width is "+w+" the height is "+h);
+        //System.out.println("the width is "+w+" the height is "+h);
         if(binaryMatrix==null){
-            System.out.println("the binary matrix passed to findBoundary is null");
+          //  System.out.println("the binary matrix passed to findBoundary is null");
             
         }else
         for (int y = 0; y < h; y++) {

@@ -1,31 +1,24 @@
 package GUI.Components;
 
-import hu.droidzone.iosui.IOSUIApplication;
-import hu.droidzone.iosui.IOSUIButton;
-import hu.droidzone.iosui.IOSUIComponent;
-import hu.droidzone.iosui.IOSUIHeader;
-import hu.droidzone.iosui.IOSUIPage;
-import hu.droidzone.iosui.IOSUIPagesControl;
-import hu.droidzone.iosui.IOSUITextArea;
-import hu.droidzone.iosui.IOSUIView;
-import hu.droidzone.iosui.list.IOSUIListView;
+import GUI.Pages.P10_LoadImage;
 import GUI.Pages.RFPage;
-import GUI.Pages.RFPage1;
-import facereplacementsystem.FaceReplacementSystem;
-
+import facereplacementsystem.FRSEngine;
+import hu.droidzone.iosui.*;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
-
 import javax.swing.AbstractAction;
 
 public class RFApplication {
 	public IOSUIButton btnNext;
-	public FaceReplacementSystem faceReplacementSystem;
-	
+	public FRSEngine frs;
 	IOSUIPagesControl pc;
 	
+        public FRSEngine getFRS()
+        {
+            return frs;
+        }
 	private void startup() {
-		this.faceReplacementSystem = new FaceReplacementSystem();
+		this.frs = new FRSEngine();
 		IOSUIView content = new IOSUIView("p:g","p,p:g");
 		
 		IOSUIHeader pageHeader = IOSUIHeader.createOwnedPagesViewHeader();
@@ -40,7 +33,7 @@ public class RFApplication {
 			}
 		});
 		
-		pc = new IOSUIPagesControl(new RFPage1(this), pageHeader);
+		pc = new IOSUIPagesControl(new P10_LoadImage(this), pageHeader);
                 
 		IOSUIButton btnExit = new IOSUIButton(new AbstractAction("Exit") {
 			@Override
@@ -66,9 +59,7 @@ public class RFApplication {
 		new RFApplication().startup();
 	}
 
-    public FaceReplacementSystem getFaceReplacementSystem() {
-        return faceReplacementSystem;
-    }
+   
         
         
 }

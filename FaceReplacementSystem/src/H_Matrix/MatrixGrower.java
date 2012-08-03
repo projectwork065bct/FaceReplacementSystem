@@ -24,7 +24,6 @@ public class MatrixGrower {
     public void process(int [][] matrix,int width,int height){
         this.width=width;
         this.height=height;
-        
         temp=new int[width][height];
         grownMatrix=new int[width][height];
         
