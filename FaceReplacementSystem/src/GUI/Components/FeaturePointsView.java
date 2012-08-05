@@ -5,7 +5,6 @@
 package GUI.Components;
 
 import DataStructures.FeaturePoint;
-import facereplacementsystem.FaceReplacementSystem;
 import hu.droidzone.iosui.IOSUIApplication;
 import hu.droidzone.iosui.IOSUIButton;
 import hu.droidzone.iosui.IOSUIHeader;

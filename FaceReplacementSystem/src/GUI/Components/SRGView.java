@@ -6,7 +6,10 @@ package GUI.Components;
 
 import facereplacementsystem.FRSEngine;
 import hu.droidzone.iosui.IOSUIView;
-import java.awt.*;
+import java.awt.Cursor;
+import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Stack;
@@ -56,16 +59,17 @@ public class SRGView extends IOSUIImageView {
     }
 
     public void applySRG() {
+        seedPoints = new Stack();//remove it if u wish to continue to grow from the previous region
         for (int x = seedRect.x; x < seedRect.width + seedRect.x; x++) {
             for (int y = seedRect.y; y < seedRect.height + seedRect.y; y++) {
                 seedPoints.push(toActualImagePoint(new Point(x, y)));
             }
         }
-        if (imageStr.compareTo("source") == 0) {
+        if (frs.getWhichHairStr().toLowerCase().compareTo("source") == 0) {
             frs.setSourceHairSeeds(seedPoints);
             frs.detectSourceHair();
             setImage(frs.getSrcHairImgShowingRegion());
-        } else if (imageStr.compareTo("target") == 0) {
+        } else if (frs.getWhichHairStr().toLowerCase().compareTo("target") == 0) {
             frs.setTargetHairSeeds(seedPoints);
             frs.detectTargetHair();
             setImage(frs.getTarHairImgShowingRegion());

@@ -323,26 +323,55 @@ public class FRSEngine extends FRSData {
         replacedFaceImage = blendedImage;
     }
     //</editor-fold>
-
-    public void detectSourceHair() {
-        SeedRegionGrowing srg = new SeedRegionGrowing(sourceImage, sourceHairSeeds);
+// <editor-fold defaultstate="collapsed" desc="Detect Hair">
+   public void detectSourceHair() {
+        SeedRegionGrowing srg = new SeedRegionGrowing(sourceImage, sourceHairSeeds, srgThreshold);
         //srg.growRegion();
-        sourceHairMatrix = srg.getBinaryMatrix();
-        srg.createImageShowingRegion(Color.red);
-        srcHairImgShowingRegion = srg.getImageShowingRegion();
-        sourceHairImage = srg.getBinaryImage();
+        int[][] hairMatrix = srg.getBinaryMatrix();
+        int value = 1;
+        if (srgMode.toLowerCase().compareTo("add") == 0) {
+            value = 1;
+        }
+        if (srgMode.toLowerCase().compareTo("remove") == 0) {
+            value = 0;
+        }
+        for (int x = 0; x < sourceImage.getWidth(); x++) {
+            for (int y = 0; y < sourceImage.getHeight(); y++) {
+                if (hairMatrix[x][y] == SeedRegionGrowing.INSIDE) {
+                    sourceHairMatrix[x][y] = value;
+                }
+            }
+        }
+        //sourceHairMatrix = srg.getBinaryMatrix();
+        srcHairImgShowingRegion = MatrixAndImage.getHighlightedImage(sourceImage, sourceHairMatrix, Color.red);
+        //sourceHairImage = MatrixAndImage.matrixToImage(sourceImage, sourceHairMatrix);
     }
 
     public void detectTargetHair() {
-        SeedRegionGrowing srg = new SeedRegionGrowing(targetImage, targetHairSeeds);
-        srg.growRegion();
-        targetHairMatrix = srg.getBinaryMatrix();
-        srg.createImageShowingRegion(Color.red);
-        tarHairImgShowingRegion = srg.getImageShowingRegion();
+        SeedRegionGrowing srg = new SeedRegionGrowing(targetImage, targetHairSeeds, srgThreshold);
+        int[][] hairMatrix = srg.getBinaryMatrix();
+        int value = 1;
+        if (srgMode.toLowerCase().compareTo("add") == 0) {
+            value = 1;//1=add
+        }
+        if (srgMode.toLowerCase().compareTo("remove") == 0) {
+            value = 0;//0 means remove (make it transparent)
+        }
+        for (int x = 0; x < targetImage.getWidth(); x++) {
+            for (int y = 0; y < targetImage.getHeight(); y++) {
+                if (hairMatrix[x][y] == SeedRegionGrowing.INSIDE) {
+                    targetHairMatrix[x][y] = value;
+                }
+            }
+        }
+        //targetHairMatrix = srg.getBinaryMatrix();
+        tarHairImgShowingRegion = MatrixAndImage.getHighlightedImage(targetImage, targetHairMatrix, Color.red);
+        //targetHairImage = MatrixAndImage.matrixToImage(targetImage, targetHairMatrix);
     }
 
     public void addSourceHairToReplacedFace() {
         int cnt = 0;
+        sourceHairImage = MatrixAndImage.matrixToImage(sourceImage,sourceHairMatrix);
         ImageWarper srcHairWarper = new ImageWarper(sourceHairImage, sourceFeaturePoints, targetFeaturePoints, originIndex);
         srcHairImgAfterWarping = srcHairWarper.runGet();
         Point warpedHairOrigin = srcHairWarper.getMappedOrigin();

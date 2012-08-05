@@ -64,11 +64,14 @@ public class FRSData {
     protected Stack<Point> targetHairSeeds;
     protected int[][] targetHairMatrix;
     protected BufferedImage targetHairImage;
+    protected String srgMode = "add";//add or remove 
+    protected float srgThreshold = (float) 0.5;//0 - 1
     protected BufferedImage tarHairImgShowingRegion;
     protected BufferedImage replacedFaceWithSourceHair;
     protected BufferedImage replacedFaceWithTargetHair;
     protected BufferedImage replacedFaceImage;
     protected String whichHairStr;//it can be "source" or "target"
+
     public BufferedImage getBlendedImage() {
         return blendedImage;
     }
@@ -203,6 +206,7 @@ public class FRSData {
 
     public void setSourceImage(BufferedImage sourceImage) {
         this.sourceImage = sourceImage;
+        createSourceHairMatrix();
     }
 
     public List<Point> getSourceRectLeftEdge() {
@@ -291,6 +295,7 @@ public class FRSData {
 
     public void setTargetImage(BufferedImage targetImage) {
         this.targetImage = targetImage;
+        createTargetHairMatrix();
     }
 
     public List<Point> getTargetRectLeftEdge() {
@@ -492,6 +497,45 @@ public class FRSData {
     public void setWhichHairStr(String whichHairStr) {
         this.whichHairStr = whichHairStr;
     }
-    
-    
+
+    public String getSrgMode() {
+        return srgMode;
+    }
+
+    public void setSrgMode(String srgMode) {
+        if (srgMode.toLowerCase().compareTo("add") == 0 || srgMode.toLowerCase().compareTo("remove") == 0) {
+            this.srgMode = srgMode;
+        }
+    }
+
+    public float getSrgThreshold() {
+        return srgThreshold;
+    }
+
+    public void setSrgThreshold(float srgThreshold) {
+        if (srgThreshold >= 0 && srgThreshold <= 1) {
+            this.srgThreshold = srgThreshold;
+        }
+    }
+
+    //Other initialization functions
+    public void createSourceHairMatrix() {
+        sourceHairMatrix = new int[sourceImage.getWidth()][sourceImage.getHeight()];
+        for (int x = 0; x < sourceImage.getWidth(); x++) {
+            sourceHairMatrix[x] = new int[sourceImage.getHeight()];
+            for (int y = 0; y < sourceImage.getHeight(); y++) {
+                sourceHairMatrix[x][y] = 0;
+            }
+        }
+    }
+
+    public void createTargetHairMatrix() {
+        targetHairMatrix = new int[targetImage.getWidth()][targetImage.getHeight()];
+        for (int x = 0; x < targetImage.getWidth(); x++) {
+            targetHairMatrix[x] = new int[targetImage.getHeight()];
+            for (int y = 0; y < targetImage.getHeight(); y++) {
+                targetHairMatrix[x][y] = 0;
+            }
+        }
+    }
 }

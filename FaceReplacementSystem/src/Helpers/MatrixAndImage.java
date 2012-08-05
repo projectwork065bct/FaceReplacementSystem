@@ -53,14 +53,25 @@ public class MatrixAndImage {
         Color c;
         for (int x = 0; x < image.getWidth(); x++) {
             for (int y = 0; y < image.getHeight(); y++) {
-                c = new Color(binaryImage.getRGB(x, y), true);
-                if (matrix[x][y] == 0) {
-                    binaryImage.setRGB(x, y, Color.RED.getRGB());
-                } else {
-                    binaryImage.setRGB(x, y, c.getRGB());
-                }
+                if (matrix[x][y] <= 0) {//If the pixel value is less than or equal to 0 then make it transparent
+                    c = new Color(image.getRGB(x, y), true);
+                    binaryImage.setRGB(x, y, ColorModelConverter.getTransparentColor(c).getRGB());
+                } 
             }
         }
         return binaryImage;
+    }
+
+    //All the matrix cells valued 1 or more are highlighted with the color
+    public static BufferedImage getHighlightedImage(BufferedImage image, int[][] matrix, Color c) {
+        BufferedImage highlightedImg = DeepCopier.getBufferedImage(image, image.getType());
+        for (int x = 0; x < image.getWidth(); x++) {
+            for (int y = 0; y < image.getHeight(); y++) {
+                if (matrix[x][y] >= 1) {
+                    highlightedImg.setRGB(x, y, c.getRGB());
+                }
+            }
+        }
+        return highlightedImg;
     }
 }

@@ -4,7 +4,6 @@
  */
 package GUI.Components;
 
-import facereplacementsystem.FaceReplacementSystem;
 import hu.droidzone.iosui.IOSUIApplication;
 import hu.droidzone.iosui.IOSUIButton;
 import hu.droidzone.iosui.IOSUIHeader;
@@ -22,11 +21,10 @@ import javax.swing.AbstractAction;
  */
 public class ResizableRectangleView extends IOSUIImageView {
 
-    Rectangle rect ;//= new Rectangle(100, 100, 150, 150);
+    Rectangle rect;//= new Rectangle(100, 100, 150, 150);
     Color rectColor = Color.YELLOW;
-    FaceReplacementSystem frs;
-    //constructors
 
+    //constructors
     public ResizableRectangleView(String col, String row) {
         super(col, row);
         initComponents();
@@ -46,7 +44,7 @@ public class ResizableRectangleView extends IOSUIImageView {
     @Override
     public void paintComponent(Graphics g) {
         //super.paintComponent(g);
-        
+
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
@@ -57,16 +55,12 @@ public class ResizableRectangleView extends IOSUIImageView {
     @Override
     public void paint(Graphics g) {
         super.paintComponent(g);
-//       if(frs.getSourceImage()!=null)
-//        {   g.drawImage(frs.getSourceImage(),0,0,null);
-//        }
+
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setPaint(Color.YELLOW);
         g2.draw(rect);
-//        g2.setColor(Color.red);
-//        g2.drawLine(0, 0, 50, 50);
     }
 
     protected void printRectangleInfo() {
@@ -74,30 +68,27 @@ public class ResizableRectangleView extends IOSUIImageView {
     }
 
     //setters and getters
-    
-    public void initializeRectangle(Rectangle rect){
-//        this.rect= new Rectangle(100, 100, 150, 150);
+    public void initializeRectangle(Rectangle rect) {
         Rectangle actualRectInImage = rect;
-//        if("source".equals(value))
-//            actualRectInImage=frs.getSourceFaceRectangle();
-//        else if("target".equals(value))
-//            actualRectInImage=frs.getTargetFaceRectangle();
-//        else actualRectInImage=null;
-        
-        Rectangle resizedRectangle=new Rectangle();
-        int recX=actualRectInImage.x;
-        int recY=actualRectInImage.y;
-        int width=actualRectInImage.width;
-        int height=actualRectInImage.height;
-        int stopx=recX+width;
-        int stopy=recY+height;
-        
-        Point a=this.toDrawnImagePoint(new Point(recX,recY));
-        Point b=this.toDrawnImagePoint(new Point(stopx,stopy));
-        resizedRectangle.x=a.x;resizedRectangle.y=a.y;resizedRectangle.width=b.x-a.x;resizedRectangle.height=b.y-a.y;
-        this.rect=resizedRectangle;
+
+        Rectangle resizedRectangle = new Rectangle();
+        int recX = actualRectInImage.x;
+        int recY = actualRectInImage.y;
+        int width = actualRectInImage.width;
+        int height = actualRectInImage.height;
+        int stopx = recX + width;
+        int stopy = recY + height;
+
+        Point a = this.toDrawnImagePoint(new Point(recX, recY));
+        Point b = this.toDrawnImagePoint(new Point(stopx, stopy));
+        resizedRectangle.x = a.x;
+        resizedRectangle.y = a.y;
+        resizedRectangle.width = b.x - a.x;
+        resizedRectangle.height = b.y - a.y;
+        this.rect = resizedRectangle;
         //System.out.printf("%d,%d,%d,%d",rect.x,rect.y,rect.width,rect.height);
     }
+
     public void setRectangle(Rectangle r) {
         this.rect = r;
     }
@@ -113,7 +104,7 @@ public class ResizableRectangleView extends IOSUIImageView {
     public static void main(String[] args) {
         IOSUIView content = new IOSUIView("p:g", "p:g");
         ResizableRectangleView rajanPanel1 = new ResizableRectangleView("400px", "400px");
-        
+
         content.addXY(rajanPanel1, 1, 1);
 
         IOSUIButton btn = new IOSUIButton(new AbstractAction(IOSI18N.get("msg.btn.exit")) {
@@ -128,27 +119,6 @@ public class ResizableRectangleView extends IOSUIImageView {
         IOSUIHeader hdr = IOSUIHeader.createApplicationHeader(0, 1, "Rajan's lesson 1 of the IOSUI Application");
         hdr.addXY(btn, 2, 1, "c,c");
         IOSUIApplication.startIOSUIApplication(600, 400, content, hdr);
-    }
-
-    public void setFRS(FaceReplacementSystem frs) {
-        this.frs = frs;
-//        Rectangle actualRectInImage=frs.getSourceFaceRectangle();
-//        
-//        Rectangle resizedRectangle=new Rectangle();
-//        int recX=actualRectInImage.x;
-//        int recY=actualRectInImage.y;
-//        int width=actualRectInImage.width;
-//        int height=actualRectInImage.height;
-//        int stopx=recX+width;
-//        int stopy=recY+height;
-//        
-//        System.out.printf("%d,%d,%d,%d",recX,recY,width,height);
-//        
-//        Point a=this.toDrawnImagePoint(new Point(recX,recY));
-//        Point b=this.toDrawnImagePoint(new Point(stopx,stopy));
-//        resizedRectangle.x=a.x;resizedRectangle.y=a.y;resizedRectangle.width=a.x-b.x;resizedRectangle.height=a.y-b.y;
-//        this.rect=resizedRectangle;
-//        
     }
 }
 
@@ -173,7 +143,7 @@ class ResizerAdapter extends MouseAdapter {
         if (component.getCursor() != Cursor.getDefaultCursor()) {
             // If cursor is set for resizing, allow dragging.
             dragging = true;
-            
+
         }
     }
 

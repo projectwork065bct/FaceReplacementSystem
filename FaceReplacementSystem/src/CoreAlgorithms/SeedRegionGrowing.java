@@ -36,11 +36,13 @@ public class SeedRegionGrowing {
     protected int minR, maxR, minG, maxG, minB, maxB;
     protected float Ymin, Ymax, Cbmin, Cbmax, Crmin, Crmax;
     protected int seedCount = 0;
+    protected float threshold = (float) 0.5;//between 0 and 1
 
     //Constructor
-    public SeedRegionGrowing(BufferedImage image, Stack<Point> seedStack) {
+    public SeedRegionGrowing(BufferedImage image, Stack<Point> seedStack, float threshold) {
         this.image = DeepCopier.getBufferedImage(image, BufferedImage.TYPE_INT_ARGB);
         this.seedStack = new Stack<Point>();
+        this.threshold = threshold;
         for (int i = 0; i < seedStack.size(); i++) {
             this.seedStack.push(seedStack.get(i));
         }
@@ -49,6 +51,7 @@ public class SeedRegionGrowing {
         initializeSeedPixels();
         findImageSize();
         initializeRange();
+        findRange();
         growRegion();
         createBinaryImage();
     }
@@ -124,6 +127,22 @@ public class SeedRegionGrowing {
          */
     }
 
+//Finds the range in which the color should fall
+    //Note when threshold = 0.7, the range is from Ymin and Ymax
+    //0.7 was determined by hit and trial
+    protected void findRange() {
+        float coeff = (float) (0.5 - threshold);
+        int dist_Y = (int) ((Ymax - Ymin));
+        int dist_Cb = (int) ((Cbmax - Cbmin));
+        int dist_Cr = (int) ((Crmax - Crmin));
+        min_Y = (int) (Ymin - coeff * Math.abs(dist_Y));
+        max_Y = (int) (Ymax + coeff * Math.abs(dist_Y));
+        min_Cb = (int) (Cbmin - coeff * Math.abs(dist_Cb));
+        max_Cb = (int) (Cbmax + coeff * Math.abs(dist_Cb));
+        min_Cr = (int) (Crmin - coeff * Math.abs(dist_Cr));
+        max_Cr = (int) (Crmax + coeff * Math.abs(dist_Cr));
+    }
+
     public void growRegion() {
         if (seedStack.isEmpty()) {
             return;
@@ -195,13 +214,14 @@ public class SeedRegionGrowing {
         return isWithinRange(point);
         //return isNearToMean(point);
     }
+    protected int max_Y, min_Y, max_Cb, min_Cb, max_Cr, min_Cr;
 
     protected boolean isWithinRange(Point point) {
         int x = point.x, y = point.y;
         float Y = YCbCr[x][y][ColorModelConverter.Y];
         float Cb = YCbCr[x][y][ColorModelConverter.Cb];
         float Cr = YCbCr[x][y][ColorModelConverter.Cr];
-        if (Y >= Ymin && Y <= Ymax && Cb >= Cbmin && Cb <= Cbmax && Cr >= Crmin && Cr <= Crmax) {
+        if (Y >= min_Y && Y <= max_Y && Cb >= min_Cb && Cb <= max_Cb && Cr >= min_Cr && Cr <= max_Cr) {
             return true;
         } else {
             return false;
@@ -367,6 +387,10 @@ public class SeedRegionGrowing {
         stdDevR = (float) Math.sqrt(squareR / seedCount);
         stdDevG = (float) Math.sqrt(squareG / seedCount);
         stdDevB = (float) Math.sqrt(squareB / seedCount);
+    }
+
+    public void setThreshold(float threshold) {
+        this.threshold = threshold;
     }
     //The following variables are for the condition that the pixel lies within GLOBAL std. dev. of its neighboring pixels
     protected float meanR, meanG, meanB, stdDevR, stdDevG, stdDevB;
