@@ -19,7 +19,7 @@ public class RFApplication {
         }
 	private void startup() {
 		this.frs = new FRSEngine();
-		IOSUIView content = new IOSUIView("p:g","p,p:g");
+		IOSUIView content = new IOSUIView("p:g","p,p:g");//layout preferred Grow
 		
 		IOSUIHeader pageHeader = IOSUIHeader.createOwnedPagesViewHeader();
 		IOSUIHeader navigationHeader = IOSUIHeader.createApplicationHeader("p:g,p");

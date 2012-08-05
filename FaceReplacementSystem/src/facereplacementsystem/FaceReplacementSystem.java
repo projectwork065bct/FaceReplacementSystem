@@ -10,6 +10,7 @@ import CurveFitting.SquarePolynomial_003;
 import DataStructures.FeaturePoint;
 import H_Blending.Blender;
 import Curve.ChinCurveFilter;
+import GUI.Components.RFApplication;
 import H_Matrix.ImageMat;
 import Helpers.DeepCopier;
 import Helpers.MeanColorShifter;
@@ -275,9 +276,8 @@ public class FaceReplacementSystem {
         int h = sourceFaceRectangle.height;
         int shrunkMatrix[][] = ImageMat.shrinkMatrix(sourceSkinMatrix, w, h, shrinkCount);
         int grownMatrix[][] = ImageMat.growMatrix(shrunkMatrix, w, h, shrinkCount);
-        int fineMatrix[][] = ImageMat.holeFillAccordingToBoundary(grownMatrix, w, h);
-        int inverseMatrix[][] = ImageMat.invertMatrix(fineMatrix, w, h);
-        int finerMatrix[][] = ImageMat.holeFillAccordingToBoundary(inverseMatrix, h, w);
+        int [][] fineMatrix=ImageMat.holeFill_Horizontally(grownMatrix, w, h);
+        int [][] finerMatrix=ImageMat.holeFill_Vertically(fineMatrix, w, h);
         sourceBoundaryFilledFaceMatrix = ImageMat.invertMatrix(finerMatrix, h, w);
         findSourceBoundaryFilledImage();
     }
@@ -470,4 +470,11 @@ public class FaceReplacementSystem {
         return replacedFaceImage;
     }
     //</editor-fold>
+    
+    public static void main(String [] args){
+        System.out.println("Welcome to Face Replacement system, Enjoy");
+       // new RFApplication().startup();
+        String [] args2=null;
+        RFApplication.main(args2);
+    }
 }

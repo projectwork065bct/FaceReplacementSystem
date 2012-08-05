@@ -2,12 +2,17 @@ package GUI.Pages;
 
 import GUI.Components.RFApplication;
 import GUI.Components.ResizableRectangleView;
+import H_Matrix.ImageMat;
+import Helpers.DeepCopier;
 import Helpers.Transformer;
 import hu.droidzone.iosui.IOSUIButton;
 import hu.droidzone.iosui.IOSUIView;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
+import java.util.List;
 import javax.swing.AbstractAction;
 
 public class P30_SrcRect extends RFPage {
@@ -83,18 +88,35 @@ public class P30_SrcRect extends RFPage {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+               /* setSourceRectangle();
+                frs.detectSourceSkin();
+                
+                frs.shrinkSource();
+                frs.growSource();
+                
+                frs.findSourceCurves();
+                
+                
+                frs.useSrcCurves();
+                
+                frs.drawSourceCurves();
+                rrv.setImage(frs.getSourceImageWithCurve());*/
+                
+//                frs.findSourceBoundaryFilledMatrix();
+//                frs.findSourceBoundaryFilledImage();
+//                rrv.setImage(frs.getSourceBoundaryFilledImage());
+//                rrv.setImage(frs.getSourceRectangleImage());
+                
+                
                 setSourceRectangle();
                 frs.detectSourceSkin();
                 frs.shrinkSource();
                 frs.growSource();
                 frs.findSourceCurves();
-                //frs.drawSourceCurves();
-                //rrv.setImage(frs.getSourceImageWithCurve());
                 frs.useSrcCurves();
                 frs.findSourceBoundaryFilledMatrix();
                 frs.findSourceBoundaryFilledImage();
                 rrv.setImage(frs.getSourceBoundaryFilledImage());
-                //rrv.setImage(frs.getSourceRectangleImage());
             }
         });
         buttonsView.addXY(drawChinBtn, 1, 5);
@@ -109,6 +131,21 @@ public class P30_SrcRect extends RFPage {
             }
         });
         buttonsView.addXY(drawRotatedSrcFaceBtn, 1, 6);
+        
+        IOSUIButton chinCurve=new IOSUIButton(new AbstractAction("Draw Curve"){
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                BufferedImage b=DeepCopier.getBufferedImage(frs.getSourceImage(), frs.getSourceImage().getType());
+                Graphics g=b.getGraphics();
+                List<Point> le=frs.getSourceRectLeftEdge();
+                for(int i=0;i<le.size();i++){
+                    g.drawOval(le.get(i).x, le.get(i).y, 1, 1);
+                }
+            }
+            
+        });
+        //buttonsView.addXY(chinCurve, 2, 5);
     }
 
     @Override

@@ -19,7 +19,7 @@ import java.util.List;
  *
  * @author power
  */
-public class Blender {
+public class Blender2 {
 
     static Raster replacedImageRaster = null;//read values from here
     static WritableRaster toBlendImage = null;//write values to here;
@@ -69,36 +69,29 @@ public class Blender {
         //going to blend 5px up, down , left, right of the main boundary points
         int length = points.size();
         Point p = null;
-        replacedImageRaster = replacedImage.getRaster();//not to be changed
-        BufferedImage finalImage = DeepCopier.getBufferedImage(replacedImage,BufferedImage.TYPE_INT_RGB);
-        toBlendImage = finalImage.getRaster();//writable
-        //System.out.println("The dimensions of replacedImage are "+replacedImage.getWidth()+" "+replacedImage.getHeight());
-        //int [] a=new int[4];a[0]=0;a[1]=57;a[2]=435;a[3]=255;
-        //replacedImageRaster.getPixel(10, 10, a);
-        //BlendPixel4Log(points.get(1).x, points.get(1).y);
-        //return finalImage;
+        replacedImageRaster = replacedImage.getRaster();
+        BufferedImage finalImage = DeepCopier.getBufferedImage(replacedImage, BufferedImage.TYPE_INT_ARGB);
+        toBlendImage = finalImage.getRaster();
         int blendLimit = 5;
         for (int i = 0; i < length; i++) {
             p = points.get(i);
-            if (p != null && p.x>5) {
+            if (p != null) {
                 for (int j = -blendLimit; j < blendLimit; j++) {
                     for (int k = -blendLimit; k < blendLimit; k++) {
                         if (j == 0 && k == 0) {
                             try {
                                 BlendPixel4Log(p.x, p.y);
                                 BlendPixel4Log(p.x, p.y);
-                                //System.err.println("succeed upper");
                             } catch (Exception e) {
-                                //System.out.println("Error in blending the exact pixel= " + e.toString());
+                                //System.out.println("Error = " + e.toString());
                                 continue;
                             }
                         } else {
                             try {
                                 BlendPixel3(p.x + j, p.y);
                                 BlendPixel3(p.x, p.y + k);
-                                //System.err.println("succeed");
                             } catch (Exception e) {
-                                //System.out.println("Error = " + e.toString()+" x="+p.x+"y="+p.y+"j="+j+"k="+k);
+                                //System.out.println("Error = " + e.toString());
                                 continue;
                             }
                         }
@@ -136,11 +129,10 @@ public class Blender {
 
     private static void BlendPixel3(int x, int y) {
         //blends the pixel according to 10 connectivity
-        int[] avg = new int[4];
+        int[] avg = new int[3];
         avg[0] = 255;
         avg[1] = 255;
         avg[2] = 255;
-        avg[3]=255;
         int neighbourSize = 3;//Note neighbourSize =1 implies eightconnectivity
         List<int[]> area = new ArrayList();
         for (int i = -neighbourSize; i < neighbourSize; i++) {
@@ -153,12 +145,10 @@ public class Blender {
 
     private static void BlendPixel4Log(int x, int y) {
         //logh 1=.7816, 1-logh 1=0.2384
-        int[] abc = new int[4];
+        int[] abc = new int[3];
         abc[0] = 255;
         abc[1] = 255;
         abc[2] = 255;
-        abc[3]=255;
-        if(replacedImageRaster==null)return;
         int[] left = replacedImageRaster.getPixel(x - 1, y, abc);
         int[] right = replacedImageRaster.getPixel(x + 1, y, abc);
         int[] up = replacedImageRaster.getPixel(x, y - 1, abc);
@@ -205,8 +195,8 @@ public class Blender {
     public static BufferedImage getBlendedImage(BufferedImage faceOnly, Point wChinPoint, BufferedImage targetImage, Point targetChinPoint) {
 
         //extract boundary of the passed face rgba image
-        //List<Point> boundary=Blender.extractBoundaryVerticalHorizontal(faceOnly);
-        List<Point> boundary = Blender.extractBoundaryVerticalHorizontal(faceOnly);
+        //List<Point> boundary=Blender2.extractBoundaryVerticalHorizontal(faceOnly);
+        List<Point> boundary = Blender2.extractBoundaryVerticalHorizontal(faceOnly);
         int length = boundary.size();
 
         ///////To Replace the reddish region around the boundary
@@ -232,7 +222,7 @@ public class Blender {
             p.x += shiftx;
             p.y += shifty;
         }
-        return Blender.BlendPoints_Average2(result, boundary);
+        return Blender2.BlendPoints_Average2(result, boundary);
         //return faceOnly;
     }
 
@@ -242,7 +232,7 @@ public class Blender {
          * on the targetImage shiftVector=How much the warped face is shifted
          * before being drawn in the target
          */
-        List<Point> boundary = Blender.extractBoundaryVerticalHorizontal(faceOnly);
+        List<Point> boundary = Blender2.extractBoundaryVerticalHorizontal(faceOnly);
         int length = boundary.size();
         BufferedImage result2 = deepCopy(replacedImage);
 
@@ -252,16 +242,7 @@ public class Blender {
             p.x += shiftVector.x;
             p.y += shiftVector.y;
         }
-        return Blender.BlendPoints_Average2(result2, boundary);
-        
-        //BufferedImage b=result2;
-        /*BufferedImage b=Blender.BlendPoints_Average2(result2, boundary);
-        Graphics g=b.getGraphics();
-        g.setColor(Color.red);
-        for(int i=0;i<boundary.size();i++){
-            g.drawOval(boundary.get(i).x, boundary.get(i).y, 1, 1);
-        }
-        return b;*/
+        return Blender2.BlendPoints_Average2(result2, boundary);
 
     }
 

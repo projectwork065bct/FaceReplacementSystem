@@ -29,7 +29,6 @@ public class ImageMat {
         return b;
     }
     public static int[][] BinaryToMask(BufferedImage b){
-        //pass a bufferedImage with either all 0 or all 255 value
         int width=b.getWidth();
         int height=b.getHeight();
         int [][] mask=new int[width][height];
@@ -52,11 +51,11 @@ public class ImageMat {
      * The value boundary[y][1] gives the right boundary pixel.
      * If the boundary point is not found, then its value is -1.
      */
-    public static int[][] findBoundary(int[][] binaryMatrix, int w, int h) {
+    public static int[][] findBoundary_Horizontal(int[][] binaryMatrix, int w, int h) {
         int[][] boundary = new int[2][h];
-        //System.out.println("the width is "+w+" the height is "+h);
+        System.out.println("the width is "+w+" the height is "+h);
         if(binaryMatrix==null){
-          //  System.out.println("the binary matrix passed to findBoundary is null");
+            System.out.println("the binary matrix passed to findBoundary is null");
             
         }else
         for (int y = 0; y < h; y++) {
@@ -65,24 +64,67 @@ public class ImageMat {
             int xMin=0,xMax=w-1;
             for (xMin = 0;  xMin < w ; xMin++) {
                 //boundary[0][y] = xMin;
-                if(binaryMatrix[xMin][y] > 0 && xMin<w/4){
-                    boundary[0][y]=xMin;break;
+                try{
+                    if(binaryMatrix[xMin][y] > 0 && xMin<w/4){
+                        boundary[0][y]=xMin;break;
+                    }
+                }catch(Exception e){
+                    System.out.println("error Boundary "+xMin+" "+y);
                 }
             }
 
             for (xMax = w-1; xMax >= 0  ; xMax--) {
                 //boundary[1][y] = xMax;
-                if(binaryMatrix[xMax][y] >0 && xMax>w/2){
-                    boundary[1][y]=xMax;
+                try{
+                    if(binaryMatrix[xMax][y] >0 && xMax>w/2){
+                        boundary[1][y]=xMax;
+                        break;
+                    }
+                }catch(Exception e){
+                    System.out.println("error Boundary second "+xMax+" "+y);
+                }
+            }
+        }
+        return boundary;
+    }
+    public static int[][] findBoundary_Vertical(int[][] binaryMatrix, int w, int h) {
+        int[][] boundary = new int[w][2];
+        //System.out.println("the width is "+w+" the height is "+h);
+        if(binaryMatrix==null){
+            System.out.println("the binary matrix passed to findBoundary is null");
+            
+        }else
+        for (int x = 0; x < w; x++) {
+            boundary[x][0] = -1;
+            boundary[x][1] = -1;
+            int yMin=0,yMax=h-1;
+            for (yMin = 0;  yMin < w ; yMin++) {
+                //boundary[0][y] = xMin;
+                if(binaryMatrix[x][yMin] > 0 && yMin<h/4){
+                    boundary[x][0]=yMin;break;
+                }
+            }
+
+            for (yMax = h-1; yMax >= 0  ; yMax--) {
+                //boundary[1][y] = xMax;
+                if(binaryMatrix[x][yMax] >0 && yMax>h/2){
+                    boundary[x][1]=yMax;
                     break;
                 }
             }
         }
         return boundary;
     }
-    public static  int[][] holeFillAccordingToBoundary(int [][] ImageMatrix,int w, int h ){
+    /**
+     * 
+     * @param ImageMatrix matrix of 0=non skin, 1=skin
+     * @param w =width of the matrix
+     * @param h =height of the matrix
+     * @return horizontally boundary wise filled 2d matrix
+     */
+    public static  int[][] holeFill_Horizontally(int [][] ImageMatrix,int w, int h ){
         int [][] mask=ImageMatrix;//unfilled
-        int [][] b=ImageMat.findBoundary(mask, w, h);
+        int [][] b=ImageMat.findBoundary_Horizontal(mask, w, h);
         for(int y=0;y<h;y++)
         {
             if(b[0][y]>-1){
@@ -93,7 +135,19 @@ public class ImageMat {
         }
         return mask;
     }
-    
+    public static  int[][] holeFill_Vertically(int [][] ImageMatrix,int w, int h ){
+        int [][] mask=ImageMatrix;//unfilled
+        int [][] b=ImageMat.findBoundary_Vertical(mask, w, h);
+        for(int x=0;x<w;x++)
+        {
+            if(b[x][0]>-1){
+                for(int y=b[x][0];y<b[x][1];y++){
+                    mask[x][y]=1;
+                }
+            }
+        }
+        return mask;
+    }
     
     public static int [][] invertMatrix(int [][] matrix,int width, int height){
         //pass originalMatrix and its width and its height
@@ -135,5 +189,19 @@ public class ImageMat {
            ans=mg.getResult();
        }
        return ans;
+    }
+    
+    public static int[][] shrinkGrowMatrix(int[][] mat, int width, int height, int count){
+        int [][] matrix;
+        matrix=shrinkMatrix(mat, width, height, count);
+        matrix=growMatrix(matrix, width, height, count);
+        return matrix;
+    }
+    
+    public static int[][] boundaryFilledTwoWay(int[][] mat,int width,int height){
+        int [][] fineMatrix=ImageMat.holeFill_Horizontally(mat,width,height);
+        int [][] finerMatrix=ImageMat.holeFill_Vertically(fineMatrix,width, height);
+        int [][] twowayFilled=ImageMat.holeFill_Horizontally(finerMatrix, width, height);
+        return ImageMat.holeFill_Vertically(twowayFilled,width,height);
     }
 }

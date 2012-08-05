@@ -95,7 +95,7 @@ public class FRSEngine extends FRSData {
     public void detectSourceSkin() {
         SkinColorDetector sourceSkinDetector = new SkinColorDetectorUsingThreshold(sourceRectangleImage);
         sourceSkinDetector.detectSkin();
-        sourceSkinMatrix = sourceSkinDetector.getSkinMatrix();
+        sourceSkinMatrix = sourceSkinDetector.getSkinMatrix();//size =FaceRectangle
         //findSourceCurves();
         //filterSourceCurve();
         sourceSkinImage = sourceSkinDetector.getSkinImage();
@@ -243,10 +243,9 @@ public class FRSEngine extends FRSData {
     public void findSourceBoundaryFilledMatrix() {
         int w = sourceFaceRectangle.width;
         int h = sourceFaceRectangle.height;
-        int fineMatrix[][] = ImageMat.holeFillAccordingToBoundary(srcMatrixWithChin, w, h);
-        int inverseMatrix[][] = ImageMat.invertMatrix(fineMatrix, w, h);
-        int finerMatrix[][] = ImageMat.holeFillAccordingToBoundary(inverseMatrix, h, w);
-        sourceBoundaryFilledFaceMatrix = ImageMat.invertMatrix(finerMatrix, h, w);
+        int [][] erectMatrix;//=ImageMat.invertMatrix(finerMatrix, h, w);
+        erectMatrix=ImageMat.boundaryFilledTwoWay(srcMatrixWithChin, w, h);
+        sourceBoundaryFilledFaceMatrix = erectMatrix;//ImageMat.holeFillAccordingToBoundary(erectMatrix, w, h);
 
     }
 

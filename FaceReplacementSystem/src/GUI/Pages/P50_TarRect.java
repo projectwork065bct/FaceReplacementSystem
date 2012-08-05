@@ -27,7 +27,6 @@ public class P50_TarRect extends RFPage {
         frs.detectTargetSkin();
         frs.warp(3);
         pc.navigateTo(new P60_Hair(app));
-        
     }
 
     //Saves the rectangle drawn around the target face

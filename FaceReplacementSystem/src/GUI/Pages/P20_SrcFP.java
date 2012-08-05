@@ -23,10 +23,10 @@ public class P20_SrcFP extends RFPage {
 
     //Saves the feature points in the source image
     public void setSourceFeaturePoints() {
-        Point[] featurePoints = fp.getFeaturePoints();
+        Point[] featurePoints = fp.getFeaturePoints();//feature Points as they are drawn, scaled instance
         Point[] tempFeaturePoints = new Point[featurePoints.length];
         for (int i = 0; i < featurePoints.length; i++) {
-            tempFeaturePoints[i] = fp.toActualImagePoint(featurePoints[i]);
+            tempFeaturePoints[i] = fp.toActualImagePoint(featurePoints[i]);//map point to original image size
         }
         frs.setSourceFeaturePoints(tempFeaturePoints);
     }

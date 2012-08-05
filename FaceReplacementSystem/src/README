@@ -1,1 +1,6 @@
 https://github.com/projectwork065bct/FaceReplacementSystem.git
+
+FRSEngine ma problems chha with chin curve filling and blending... FRSEngine ko code padhera sachyaideu....
+
+Rajan: Integration of Blender, and the problems with boundary filling horizontally and vertically are fixed, still 
+        there is sth missing, 8/5/2012 5:20 pm
