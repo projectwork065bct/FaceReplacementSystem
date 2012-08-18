@@ -5,6 +5,8 @@
  */
 package frs.engine;
 
+import ACMSnake.SnakeClass;
+import ACMSnake.SnakeInitializer;
 import frs.curve.SquarePolynomial_002;
 import frs.algorithms.*;
 import frs.dataTypes.FeaturePoint;
@@ -12,13 +14,18 @@ import frs.helpers.ColorModelConverter;
 import frs.helpers.DeepCopier;
 import frs.helpers.GeometricTransformation;
 import frs.helpers.MatrixAndImage;
+import ij.ImagePlus;
+import ij.process.ImageProcessor;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.imageio.ImageIO;
 
 /**
  *
@@ -243,18 +250,28 @@ public class FRSEngine extends FRSData {
     //</editor-fold>
     
     //<editor-fold defaultstate="collapsed" desc="Extract the boundary around the face">
-    public void findSourceBoundaryFilledMatrix() {
-        int w = srcFaceRect.width;
-        int h = srcFaceRect.height;
-        int[][] erectMatrix;//=ImageMat.invertMatrix(finerMatrix, h, w);
-        erectMatrix = ImageMat.boundaryFilledTwoWay(srcMatrixWithChinCurve, w, h);
-        sourceBoundaryFilledFaceMatrix = erectMatrix;//ImageMat.holeFillAccordingToBoundary(erectMatrix, w, h);
-
+    private String TempImagePath = "G:\\a.jpg";
+    public void findSourceBoundaryFilledMatrix() throws IOException {
+        
+//        int w = srcFaceRect.width;
+//        int h = srcFaceRect.height;
+//        int[][] erectMatrix;//=ImageMat.invertMatrix(finerMatrix, h, w);
+//        erectMatrix = ImageMat.boundaryFilledTwoWay(srcMatrixWithChinCurve, w, h);
+//        sourceBoundaryFilledFaceMatrix = erectMatrix;//ImageMat.holeFillAccordingToBoundary(erectMatrix, w, h);
+        ImageIO.write(srcImg, "jpg", new File(TempImagePath));
+        ImagePlus imageplus = new ImagePlus(TempImagePath);
+        ImageProcessor p = imageplus.getProcessor();
+        imageplus.setRoi(srcFaceRect.x, srcFaceRect.y, srcFaceRect.width, srcFaceRect.height);
+        SnakeInitializer a = new SnakeInitializer();
+        a.set(imageplus);
+        a.run(imageplus.getProcessor());     
+        sourceBoundaryFilledFaceMatrix = SnakeClass.getFaceEdgecoordinates2(srcFaceRect);
     }
 
     //Construct an image from sourceBoundaryFilledFaceMatrix
     public void findSourceBoundaryFilledImage() {
         sourceBoundaryFilledImage = DeepCopier.getBufferedImage(srcRectImg, BufferedImage.TYPE_INT_ARGB);
+        
         Color actualColor;
         Color transparentColor;
         for (int x = 0; x < sourceBoundaryFilledImage.getWidth(); x++) {

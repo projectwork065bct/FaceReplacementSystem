@@ -13,6 +13,13 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 import javax.swing.AbstractAction;
 import frs.main.RFApplication;
+import hu.droidzone.iosui.IOSUILabel;
+import hu.droidzone.iosui.IOSUITextField;
+import java.awt.Color;
+import java.awt.Font;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class P30_SrcRect extends RFPage {
 
@@ -21,6 +28,9 @@ public class P30_SrcRect extends RFPage {
     IOSUIButton detectSkinBtn, showOriginalBtn, shrinkBtn, growBtn;
     IOSUIButton drawChinBtn;
     IOSUIButton drawRotatedSrcFaceBtn;
+    IOSUILabel thresholdLbl, iterationLbl;
+    IOSUITextField thresholdTxtField, iterationTxtField;
+    IOSUIButton snakePreviewBtn;
 
     public P30_SrcRect(final RFApplication app) {
         super(app, "Draw Rectangle");
@@ -30,7 +40,7 @@ public class P30_SrcRect extends RFPage {
     protected void initializeComponents() {
 
         mainView = new IOSUIView("600px,20px,100px,60px", "400px");
-        buttonsView = new IOSUIView("100px", "40px,40px,40px,40px,40px,40px");
+        buttonsView = new IOSUIView("100px", "40px,40px,40px,40px,40px,40px,40px,40px,40px");
         initializeButtons();
         frs.rotateSource();
         //frs.drawFPOnRotatedImage();
@@ -40,6 +50,46 @@ public class P30_SrcRect extends RFPage {
         mainView.addXY(buttonsView, 3, 1, "f,f");
         addXY(mainView, 1, 1);
         helpText.setText("Adjust the rectangle around the face.");
+        initSnakeUI();
+    }
+    
+    protected void initSnakeUI()
+    {
+        IOSUIView snakeView=new IOSUIView("50px,50px","40px,40px,40px");
+        thresholdLbl = new IOSUILabel("Threshold");
+        thresholdLbl.setFont(new Font(Font.SANS_SERIF,Font.BOLD,9));
+        thresholdLbl.setForeground(Color.white);
+        iterationLbl = new IOSUILabel("Iteration");
+        iterationLbl.setFont(new Font(Font.SANS_SERIF,Font.BOLD,9));
+        iterationLbl.setForeground(Color.white);
+        thresholdTxtField = new IOSUITextField(false);
+        thresholdTxtField.setText("3");
+        thresholdTxtField.setBackground(Color.white);
+        iterationTxtField = new IOSUITextField(false);
+        iterationTxtField.setText("10");
+        iterationTxtField.setBackground(Color.white);
+        snakePreviewBtn = new IOSUIButton(new AbstractAction("Preview") {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int t = Integer.parseInt(thresholdTxtField.getText());
+            }
+        });
+        IOSUIView thresholdView = new IOSUIView("50px","40px");
+        IOSUIView iterationView = new IOSUIView("50px","40px");
+        thresholdView.setBackground(Color.WHITE);
+        iterationView.setBackground(Color.WHITE);
+        snakeView.addXY(thresholdLbl,1,1);
+        thresholdView.addXY(thresholdTxtField,1,1);
+        snakeView.addXY(thresholdView,2,1);
+        snakeView.addXY(iterationLbl,1,2);
+        iterationView.addXY(iterationTxtField,1,1);
+        
+        snakeView.addXY(iterationView,2,2);
+        snakeView.addXYW(snakePreviewBtn,1,3,2);
+        
+        buttonsView.addXYWH(snakeView,1,7,1,3);
+        
     }
 
     protected void initializeButtons() {
@@ -57,7 +107,7 @@ public class P30_SrcRect extends RFPage {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                rrv.setImage(frs.getRotatedSrcImg());
+                rrv.setImage(frs.getRotatedSrcImg());//call this to set image
             }
         });
         buttonsView.addXY(showOriginalBtn, 1, 2);
@@ -113,7 +163,11 @@ public class P30_SrcRect extends RFPage {
                 frs.growSource();
                 frs.findSourceCurves();
                 frs.useSrcCurves();
-                frs.findSourceBoundaryFilledMatrix();
+                try {
+                    frs.findSourceBoundaryFilledMatrix();
+                } catch (IOException ex) {
+                    Logger.getLogger(P30_SrcRect.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 frs.findSourceBoundaryFilledImage();
                 rrv.setImage(frs.getSourceBoundaryFilledImage());
             }
@@ -155,13 +209,18 @@ public class P30_SrcRect extends RFPage {
         frs.growSource();
         frs.findSourceCurves();
         frs.useSrcCurves();
-        frs.findSourceBoundaryFilledMatrix();
+        try {
+            frs.findSourceBoundaryFilledMatrix();
+        } catch (IOException ex) {
+            Logger.getLogger(P30_SrcRect.class.getName()).log(Level.SEVERE, null, ex);
+        }
         frs.findSourceBoundaryFilledImage();
         pc.navigateTo(new P40_TarFP(app));
     }
 
     //Saves the rectangle drawn around the face
     //Also extracts the subimage inside the rectangle
+    private int startx, starty,rwidth, rheight;
     public void setSourceRectangle() {
         Rectangle r = rrv.getRectangle();
         Rectangle resized = new Rectangle();
@@ -170,9 +229,14 @@ public class P30_SrcRect extends RFPage {
         Point a = rrv.toActualImagePoint(new Point(r.x, r.y));
         Point b = rrv.toActualImagePoint(new Point(stopx, stopy));
         resized.x = a.x;
+        startx = resized.x;
+        starty = resized.y;
+        
         resized.y = a.y;
         resized.width = b.x - a.x;
         resized.height = b.y - a.y;
+        rwidth = resized.width;
+        rheight = resized.height;
         frs.setSourceFaceRectangle(resized);
         frs.findSourceRectImage();
         frs.findSourceRectFP();
