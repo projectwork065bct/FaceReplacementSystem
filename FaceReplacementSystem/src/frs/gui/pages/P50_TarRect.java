@@ -85,10 +85,13 @@ public class P50_TarRect extends RFPage {
         iterationTxtField.setText("10");
         iterationTxtField.setBackground(Color.white);
         snakePreviewBtn = new IOSUIButton(new AbstractAction("Preview") {
-
+/**
+ * Add the code here for the previe button event
+ */
             @Override
             public void actionPerformed(ActionEvent e) {
                 int t = Integer.parseInt(thresholdTxtField.getText());
+                frs.setSrcImg(null);
             }
         });
         IOSUIView thresholdView = new IOSUIView("50px","40px");

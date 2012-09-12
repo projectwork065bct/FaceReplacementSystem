@@ -2,12 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package ACMSnake;
+package frs.helpers;
 
+import frs.helpers.Point2d;
+import frs.helpers.SnakeConfig;
 import frs.algorithms.ImageMat;
-import ij.IJ;
 import ij.Prefs;
-import ij.gui.Line;
 import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import ij.process.ByteProcessor;
@@ -28,7 +28,7 @@ public class SnakeClass {
     double lambda[];
     int etat[];
     int NPT;
-    int NMAX = 50000;
+    int NMAX = 500000;
     int block, elimination, ARRET;
     boolean closed;
     SnakeConfig config;
@@ -48,7 +48,7 @@ public class SnakeClass {
     }
     
     /**
-     *  Sets the config attribute of the SnakeD object
+     *  Sets the config attribute of the SnakeDriver object
      *
      * @param  sc  The new config value
      */
@@ -66,7 +66,7 @@ public class SnakeClass {
     }
     
     /**
-     *  Gets the point attribute of the ABSnake object
+     *  Gets the point attribute of the SnakeClass object
      *
      * @param  i  Description of the Parameter
      * @return    The point value
@@ -76,7 +76,7 @@ public class SnakeClass {
     }
 
     /**
-     *  Gets the points attribute of the ABSnake object
+     *  Gets the points attribute of the SnakeClass object
      *
      * @return    The points value
      */
@@ -85,7 +85,7 @@ public class SnakeClass {
     }
 
     /**
-     *  Gets the config attribute of the ABSnake object
+     *  Gets the config attribute of the SnakeClass object
      *
      * @return    The config value
      */
@@ -94,7 +94,7 @@ public class SnakeClass {
     }
 
     /**
-     *  Gets the lambda attribute of the ABSnake object
+     *  Gets the lambda attribute of the SnakeClass object
      *
      * @return    The lambda value
      */
@@ -103,7 +103,7 @@ public class SnakeClass {
     }
 
     /**
-     *  Gets the displacement attribute of the ABSnake object
+     *  Gets the displacement attribute of the SnakeClass object
      *
      * @return    The displacement value
      */
@@ -214,7 +214,7 @@ public class SnakeClass {
     }
 
     /**
-     *  Initialisation of the snake points
+     *  Initialization of the snake points
      *
      * @param  R  ROI
      */
@@ -240,8 +240,8 @@ public class SnakeClass {
         }
 
 
-        //Calcul des points de la ROI
-        if ((R.getType() == Roi.OVAL) || (R.getType() == Roi.RECTANGLE)) {
+        //Calculate all the points in the ROI
+        if (R.getType() == Roi.RECTANGLE) {
             closed = true;
             Rectangle Rect = R.getBounds();
             int xc = Rect.x + Rect.width / 2;
@@ -257,40 +257,10 @@ public class SnakeClass {
                 i++;
             }
             NPT = i;
-        } else if (R.getType() == Roi.LINE) {
-            closed = false;
-            Line l = (Line) (R);
-            Rx = (l.x2 - l.x1);
-            Ry = (l.y2 - l.y1);
-            a = Math.sqrt(Rx * Rx + Ry * Ry);
-            Rx /= a;
-            Ry /= a;
-            int ind = 0;
-            for (i = 0; i <= l.getLength(); i++) {
-                points[ind].x = l.x1 + Rx * i;
-                points[ind].y = l.y1 + Ry * i;
-                etat[ind] = 0;
-                ind++;
-            }
-            NPT = ind;
-        } else if ((R.getType() == Roi.FREEROI) || (R.getType() == Roi.POLYGON)) {
-            closed = true;
-            PolygonRoi p = (PolygonRoi) (R);
-            Rectangle rectBound = p.getBounds();
-            int NBPT = p.getNCoordinates();
-            int pointsX[] = p.getXCoordinates();
-            int pointsY[] = p.getYCoordinates();
-            for (i = 0; i < NBPT; i++) {
-                points[i].x = pointsX[i] + rectBound.x;
-                points[i].y = pointsY[i] + rectBound.y;
-
-            }
-            NPT = NBPT;
-            if (R.getType() == Roi.POLYGON) {
-                this.resample(true);
-            }
-        } else {
-            IJ.showStatus("Selection type not supported");
+        }
+        else {
+          
+        
         }
         block = 0;
         elimination = 0;
@@ -298,7 +268,7 @@ public class SnakeClass {
     }
 
     /**
-     *  regularisation of distance between points
+     *  regularization of distance between points
      */
     void resample(boolean init) {
          Point2d temp[];
@@ -396,9 +366,9 @@ public class SnakeClass {
      */
     public void calculus(int deb, int fin) {
         int i;
-         Point2d bi;
-         Point2d temp;
-         Point2d debtemp;
+        Point2d bi;
+        Point2d temp;
+        Point2d debtemp;
         double mi;
         double gi;
         double di;
@@ -415,9 +385,6 @@ public class SnakeClass {
         for (i = deb; i < fin; i++) {
             bi.x = points[i].x + deplace[i].x;
             bi.y = points[i].y + deplace[i].y;
-            //gi = -lambda[i] * lambda[i + 1] - (lambda[i] * lambda[i]);
-            //di = -lambda[i] * lambda[i + 1] - (lambda[i + 1] * lambda[i + 1]);
-            //mi = (lambda[i] * lambda[i]) + 2.0 * lambda[i] * lambda[i + 1] + (lambda[i + 1] * lambda[i + 1]) + 1.0;
             gi = -lambda[i];
             di = -lambda[i + 1];
             mi = lambda[i] + lambda[i + 1] + 1.0;
@@ -441,9 +408,6 @@ public class SnakeClass {
             i = fin;
             bi.x = points[i].x + deplace[i].x;
             bi.y = points[i].y + deplace[i].y;
-            //gi = -lambda[i] * lambda[deb] - (lambda[i] * lambda[i]);
-            //di = -lambda[i] * lambda[deb] - (lambda[deb] * lambda[deb]);
-            //mi = (lambda[i] * lambda[i]) + 2.0 * lambda[i] * lambda[deb] + (lambda[deb] * lambda[deb]) + 1.0;
             gi = -lambda[i];
             di = -lambda[deb];
             mi = lambda[i] + lambda[deb] + 1.0;
@@ -526,7 +490,6 @@ public class SnakeClass {
         norm = normale[num];
 
         displacement = new Point2d();
-        //recherche des points de la normale au point de contour
         int index = 0;
         double step = 1.0 / (double) scale;
         double deb = -scaleint;
@@ -616,8 +579,6 @@ public class SnakeClass {
 
             return displacement;
         }
-
-        //System.out.println("num =" + num + " " + demoins + " " + dist_minus + " " + deplus + " " + dist_plus);
 
         int direction;
         // go to closest edge
@@ -780,7 +741,6 @@ public class SnakeClass {
      * @return         Description of the Return Value
      */
     private ImageProcessor grad2d_deriche(ImageProcessor iDep, double alphaD) {
-        //ImageProcessor iGrad = iDep.createProcessor(iDep.getWidth(), iDep.getHeight());
         ImageProcessor iGrad = new ByteProcessor(iDep.getWidth(), iDep.getHeight());
         int nmem;
         float[] nf_grx = null;
@@ -1015,7 +975,7 @@ public class SnakeClass {
          *  THIRD STEP : NORM
          */
         /*
-         *  computatopn of the magnitude
+         *  computation of the magnitude
          */
         for (i = 0; i < lignes; i++) {
             for (j = 0; j < colonnes; j++) {
@@ -1031,7 +991,6 @@ public class SnakeClass {
          */
         result_array = new byte[nmem];
 
-        //Recherche des niveaux min et max du gradiant
         double min = a2[0];
         double max = a2[0];
         for (i = 1; i < nmem; i++) {
@@ -1048,7 +1007,6 @@ public class SnakeClass {
             result_array[i] = (byte) (255 * (a2[i] / (max - min)));
         }
 
-        //sauvegarde de la norme du gradiant
         iGrad.setPixels(result_array);
 
         return iGrad;
@@ -1074,8 +1032,6 @@ public class SnakeClass {
         // EXPERIMENTAL
         double dist_plus = Prefs.get("ABSnake_ThreshDistPos.double", 100);
         double dist_minus = Prefs.get("ABSnake_ThreshDistNeg.double", 100);
-
-        //IJ.log("process "+dist_plus+" "+dist_minus);
 
         for (i = 0; i < NPT; i++) {
             normale[i] = compute_normale(i);
@@ -1125,9 +1081,9 @@ public class SnakeClass {
      * @return     binarised image (black=object inside snake)
      */
     public ByteProcessor segmentation(int wi, int he, int col) {
-         Point2d pos;
-         Point2d norm;
-         Point2d ref;
+        Point2d pos;
+        Point2d norm;
+        Point2d ref;
         int top;
         int left;
         int right;
@@ -1148,9 +1104,6 @@ public class SnakeClass {
         ref = new  Point2d();
 
         ByteProcessor res = new ByteProcessor(wi, he);
-        //res.invert();
-
-        //Calcul des valeur permettant de definir le rectangle englobant du snake
         top = 0;
         bottom = 100000;
         left = 100000;
@@ -1170,19 +1123,12 @@ public class SnakeClass {
             }
         }
 
-        //On dessine l'interieur du snake a 255
         ref.x = 0;
         ref.y = 0;
         for (x = left; x < right; x++) {
             for (y = bottom; y < top; y++) {
                 pos.x = x;
                 pos.y = y;
-                //norm.x = ref.x - pos.x;
-                //norm.y = ref.y - pos.y;
-                //lnorm = Math.sqrt(norm.x * norm.x + norm.y * norm.y);
-                //norm.x /= lnorm;
-                //norm.y /= lnorm;
-
                 if (inside(pos)) {
                     res.putPixel(x, y, col);
                 } else {
@@ -1207,8 +1153,8 @@ public class SnakeClass {
         double bres;
         double ares;
         double lnorm;
-         Point2d norm = new  Point2d();
-         Point2d ref = new  Point2d();
+        Point2d norm = new  Point2d();
+        Point2d ref = new  Point2d();
 
         ref.x = 0.0;
         ref.y = 0.0;

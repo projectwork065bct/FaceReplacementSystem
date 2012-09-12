@@ -1,4 +1,4 @@
-package ACMSnake;
+package frs.helpers;
 
 /**
  *
@@ -12,9 +12,7 @@ public class SnakeConfigDriver {
 	private double inv_alphaD1;
 	private double reg0;
 	private double reg1;
-	private double step;
-
-
+	private double step;       
 
 	/**
 	 *  Constructor for the snakeConfig object

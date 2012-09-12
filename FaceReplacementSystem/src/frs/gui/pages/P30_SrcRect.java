@@ -1,5 +1,8 @@
 package frs.gui.pages;
 
+import frs.helpers.SnakeInitializer;
+import frs.engine.FRSData;
+import frs.engine.FRSEngine;
 import frs.gui.components.ResizableRectangleView;
 import frs.helpers.DeepCopier;
 import frs.helpers.GeometricTransformation;
@@ -15,11 +18,15 @@ import javax.swing.AbstractAction;
 import frs.main.RFApplication;
 import hu.droidzone.iosui.IOSUILabel;
 import hu.droidzone.iosui.IOSUITextField;
+import ij.ImagePlus;
+import ij.process.ImageProcessor;
 import java.awt.Color;
 import java.awt.Font;
+import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 
 public class P30_SrcRect extends RFPage {
 
@@ -72,7 +79,21 @@ public class P30_SrcRect extends RFPage {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                int t = Integer.parseInt(thresholdTxtField.getText());
+                try {
+                    int thresholdT = Integer.parseInt(thresholdTxtField.getText());
+                    int iterationT = Integer.parseInt(iterationTxtField.getText());
+                    
+                    ImagePlus imageplus = new ImagePlus("G:\\a.jpg");
+                    ImageProcessor p = imageplus.getProcessor();
+                    imageplus.setRoi(rrv.getX(), rrv.getY(), rrv.WIDTH, rrv.HEIGHT);
+                    SnakeInitializer a = new SnakeInitializer();
+                    a.setIte(iterationT);
+                    a.setThreholdOfEdge(thresholdT);
+                    a.set(imageplus);
+                    a.run(imageplus.getProcessor());
+                } catch (IOException ex) {
+                    System.out.println("Sorry cannot get the face");
+                }
             }
         });
         IOSUIView thresholdView = new IOSUIView("50px","40px");
@@ -220,7 +241,7 @@ public class P30_SrcRect extends RFPage {
 
     //Saves the rectangle drawn around the face
     //Also extracts the subimage inside the rectangle
-    private int startx, starty,rwidth, rheight;
+   
     public void setSourceRectangle() {
         Rectangle r = rrv.getRectangle();
         Rectangle resized = new Rectangle();
@@ -229,14 +250,9 @@ public class P30_SrcRect extends RFPage {
         Point a = rrv.toActualImagePoint(new Point(r.x, r.y));
         Point b = rrv.toActualImagePoint(new Point(stopx, stopy));
         resized.x = a.x;
-        startx = resized.x;
-        starty = resized.y;
-        
         resized.y = a.y;
         resized.width = b.x - a.x;
         resized.height = b.y - a.y;
-        rwidth = resized.width;
-        rheight = resized.height;
         frs.setSourceFaceRectangle(resized);
         frs.findSourceRectImage();
         frs.findSourceRectFP();

@@ -1,4 +1,4 @@
-package ACMSnake;
+package frs.helpers;
 
 /**
  *

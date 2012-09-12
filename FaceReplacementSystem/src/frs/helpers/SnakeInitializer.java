@@ -2,21 +2,21 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package ACMSnake;
+package frs.helpers;
 
 
-import ij.IJ;
+import frs.helpers.SnakeConfigDriver;
+import frs.helpers.SnakeConfig;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.Prefs;
 import ij.gui.Roi;
-import ij.measure.Calibration;
 import ij.plugin.frame.RoiManager;
-import ij.process.Blitter;
-import ij.process.ByteProcessor;
 import ij.process.ColorProcessor;
 import ij.process.ImageProcessor;
 import java.awt.Color;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -26,16 +26,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class SnakeInitializer {
     //variable declaration
     ImagePlus imp;
-    // Sauvegarde de la pile de debut et de resultat :
+    //  for the intermediate results :
     ImageStack pile = null;
     ImageStack pile_resultat = null;
     ImageStack pile_seg = null;
     int currentSlice = -1;
-    // Sauvegarde des dimensions de la pile :
-    int profondeur = 0;
-    int largeur = 0;
-    int hauteur = 0;
-    // ROI originale et courante
+    // Dimensions for intermediate results :
+    int pileSize = 0;
+    int lengthOfPile = 0;
+    int heightOfPile = 0;
+    // ROI original coordinates
     int nbRois;
     Roi rorig = null;
     Roi processRoi = null;
@@ -57,83 +57,65 @@ public class SnakeInitializer {
     double regmin, regmax;
     // first and last slice to process
     int slice1, slice2;
-    // misc options
-    boolean showgrad = false;
-    boolean savecoords = false;
-    boolean createsegimage = false;
-    boolean advanced = false;
+    // this will save the Roi of the final result
+    boolean savecoords = false;    
     boolean propagate = true;
-    boolean movie = false;
+   
     
-    public void run(ImageProcessor ip) {
+    public void run(ImageProcessor ip) throws IOException {
         // original stack
         pile = imp.getStack();
         // sizes of the stack
-        profondeur = pile.getSize();
-        largeur = pile.getWidth();
-        hauteur = pile.getHeight();
+        pileSize = pile.getSize();
+        lengthOfPile = pile.getWidth();
+        heightOfPile = pile.getHeight();
         slice1 = 1;
-        slice2 = profondeur;
-        Calibration cal=imp.getCalibration();
-        double resXY=cal.pixelWidth;
-//parameters set
-        threholdOfEdge = 3;
-        ite = 10;
+        slice2 = pileSize;
+        //parameters set this is set from textboxes
+        //threholdOfEdge = 3;
+        //ite = 10;
+        
         step =1;
         colorDraw = Color.red;
         savecoords = true;
-        createsegimage = false;
-  //       many rois
+        //many rois coz ROI gets updated regularly
         RoiManager roimanager = RoiManager.getInstance();
         if (roimanager == null) {
            roimanager = new RoiManager(false);
-            roimanager.setVisible(false);           
-            rorig = imp.getRoi();
-            if (rorig == null) {
-                System.out.print("Roi required");
-                } else {
-                try{
+           rorig = imp.getRoi();
+           try{
                 roimanager.remove(0);
-                        }
-                catch(Exception e)
-                {
-                    
-                }
-                
-                roimanager.add(imp, rorig, 0);
-               
-            }
+              }
+          catch(Exception e)
+              {  }                
+                roimanager.add(imp, rorig, 0);                           
         }
         
         nbRois = roimanager.getCount();
+        /**.
+         * Original ROI is saved to RoisOrig and CurrentRoi after each processing
+         * is saved to RoisCurrent.
+         * .*/
         final Roi[] RoisOrig = roimanager.getRoisAsArray();
         final Roi[] RoisCurrent = new Roi[nbRois];
         Roi[] RoisResult = new Roi[nbRois];
         for (int i = 0; i < nbRois; i++) {
             RoisCurrent[i] = RoisOrig[i];
-        }
-
+        }        
             configDriver = new SnakeConfigDriver();
             AdvancedParameters();
             regmin = reg / 2.0;
             regmax = reg;
             // init result
-            pile_resultat = new ImageStack(largeur, hauteur, java.awt.image.ColorModel.getRGBdefault());
-            if (createsegimage) {
-                pile_seg = new ImageStack(largeur, hauteur);
-            }
+            pile_resultat = new ImageStack(lengthOfPile, heightOfPile, java.awt.image.ColorModel.getRGBdefault());
             // update of the display
             String label = "" + imp.getTitle();
-            for (int z = 0; z < profondeur; z++) {
+            for (int z = 0; z < pileSize; z++) {
                 pile_resultat.addSlice(label, pile.getProcessor(z + 1).duplicate().convertToRGB());
             }
             final AtomicInteger k = new AtomicInteger(0);
             final SnakeClass[] snakes = new SnakeClass[RoisOrig.length];
-
-
             // for all slices
-
-
             // display in RGB color
             final ColorProcessor[] image = new ColorProcessor[RoisOrig.length];
             final ImagePlus[] pluses = new ImagePlus[RoisOrig.length];
@@ -147,24 +129,17 @@ public class SnakeInitializer {
                     image[i] = (ColorProcessor) (pile_resultat.getProcessor(zz).duplicate());
                     pluses[i] = new ImagePlus("Roi " + i, image[i]);
                 }
-                Roi roi = null;
-                
+                Roi roi = null;                
                             for (int i = k.getAndIncrement(); i < RoisOrig.length; i = k.getAndIncrement()) {
-
                                 if (propagate) {
                                     roi = RoisCurrent[i];
                                 } else {
                                     roi = RoisOrig[i];
-                                }
-                               
+                                }                               
                                 snakes[i] = processSnake(pluses[i], roi, zz, i + 1);
                                 
                            } // for roi
-                        
-
-
                 // display + rois
-               
                 ColorProcessor imageDraw = (ColorProcessor) (pile_resultat.getProcessor(zz).duplicate());
                 for (int i = 0; i < RoisOrig.length; i++) {
                     snakes[i].DrawSnake(imageDraw, colorDraw, 1);
@@ -176,16 +151,6 @@ public class SnakeInitializer {
                 }
                 pile_resultat.setPixels(imageDraw.getPixels(), z);
 
-                if (createsegimage) {
-                    ByteProcessor seg = new ByteProcessor(pile_seg.getWidth(), pile_seg.getHeight());
-                    ByteProcessor tmp;
-                    for (int i = 0; i < RoisOrig.length; i++) {
-                        tmp = snakes[i].segmentation(seg.getWidth(), seg.getHeight(), i + 1);
-                        seg.copyBits(tmp, 0, 0, Blitter.ADD);
-                    }
-                    seg.resetMinAndMax();
-                    pile_seg.addSlice("Seg " + z, seg);
-                   }
 
                 if (savecoords) {
                     for (int i = 0; i < RoisOrig.length; i++) {                        
@@ -197,19 +162,19 @@ public class SnakeInitializer {
     }// save coord
                     
     
-  private void AdvancedParameters() {
-        // see advanced dialog class
-        configDriver.setMaxDisplacement(Prefs.get("ABSnake_DisplMin.double", 0.1), Prefs.get("ABSnake_DisplMax.double", 2.0));
-        configDriver.setInvAlphaD(Prefs.get("ABSnake_InvAlphaMin.double", 0.5), Prefs.get("ABSnake_InvAlphaMax.double", 2.0));
-        configDriver.setReg(Prefs.get("ABSnake_RegMin.double", 0.1), Prefs.get("ABSnake_RegMax.double", 2.0));
-        configDriver.setStep(Prefs.get("ABSnake_MulFactor.double", 0.99));
+  private void AdvancedParameters() {       
+        configDriver.setMaxDisplacement(Prefs.get("SnakeInitiializerDisplMin.double", 0.1), Prefs.get("SnakeInitiializerDisplMax.double", 2.0));
+        configDriver.setInvAlphaD(Prefs.get("SnakeInitiializerInvAlphaMin.double", 0.5), Prefs.get("SnakeInitiializerInvAlphaMax.double", 2.0));
+        configDriver.setReg(Prefs.get("SnakeInitiializerRegMin.double", 0.1), Prefs.get("SnakeInitiializerRegMax.double", 2.0));
+        configDriver.setStep(Prefs.get("SnakeInitiializerMulFactor.double", 0.99));
     }
-    public SnakeClass processSnake(ImagePlus plus, Roi roi, int numSlice, int numRoi) {
+   
+    public SnakeClass processSnake(ImagePlus plus, Roi roi, int numSlice, int numRoi) throws IOException {
         int i;
         SnakeConfig config;
         processRoi = roi;
 
-        // initialisation of the snake
+        // initialization of the snake
         SnakeClass snake = new SnakeClass();
         snake.Init(processRoi);
         snake.setOriginalImage(pile.getProcessor(numSlice));
@@ -224,40 +189,41 @@ public class SnakeInitializer {
         snake.setConfig(config);
         // compute image gradient
         snake.computeGrad(pile.getProcessor(numSlice));
-
         double dist0 = 0.0;
         double dist;
         for (i = 0; i < ite; i++) {
-            if (IJ.escapePressed()) {
-                break;
-            }
+            
             // each iteration
             dist = snake.process();
             if ((dist >= dist0) && (dist < force)) {
-                //System.out.println("update " + config.getAlpha());
                 snake.computeGrad(pile.getProcessor(numSlice));
                 config.update(mul);
             }
             dist0 = dist;
-            // display of the snake
+            //Intermediate results of the steps given in step
             if ((step > 0) && ((i % step) == 0)) {
-                IJ.showStatus("Show intermediate result (iteration n" + (i + 1) + ")");
                 ColorProcessor image2 = (ColorProcessor) (pile_resultat.getProcessor(numSlice).duplicate());
                 snake.DrawSnake(image2, colorDraw, 1);
-                plus.setProcessor("", image2);
-                plus.setTitle(imp.getTitle() + " roi " + numRoi + " (iteration n" + (i + 1) + ")");
-                plus.updateAndRepaintWindow();
+                plus.setProcessor("", image2);                
+                //Intermediate Results
+                BufferedImage intermediateImage = image2.getBufferedImage(); // Set this image to the draw panel to show the intermediate results
+                //display in the window
             }
         }// end iteration
-
-       
-
         return snake;
     }
     public void set(ImagePlus imp)
     {
-        this.imp = imp;
-        //return DOES_8G + DOES_16 + DOES_32 + NO_CHANGES;
+        this.imp = imp;        
     }
+
+    public void setIte(int ite) {
+        this.ite = ite;
+    }
+
+    public void setThreholdOfEdge(int threholdOfEdge) {
+        this.threholdOfEdge = threholdOfEdge;
+    }
+    
 
 }

@@ -5,8 +5,8 @@
  */
 package frs.engine;
 
-import ACMSnake.SnakeClass;
-import ACMSnake.SnakeInitializer;
+import frs.helpers.SnakeClass;
+import frs.helpers.SnakeInitializer;
 import frs.curve.SquarePolynomial_002;
 import frs.algorithms.*;
 import frs.dataTypes.FeaturePoint;
@@ -263,7 +263,9 @@ public class FRSEngine extends FRSData {
         ImageProcessor p = imageplus.getProcessor();
         imageplus.setRoi(srcFaceRect.x, srcFaceRect.y, srcFaceRect.width, srcFaceRect.height);
         SnakeInitializer a = new SnakeInitializer();
-        a.set(imageplus);
+        a.setIte(10);
+        a.setThreholdOfEdge(3);
+        a.set(imageplus); 
         a.run(imageplus.getProcessor());     
         sourceBoundaryFilledFaceMatrix = SnakeClass.getFaceEdgecoordinates2(srcFaceRect);
     }
