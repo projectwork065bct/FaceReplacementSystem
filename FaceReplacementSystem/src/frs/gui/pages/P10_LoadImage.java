@@ -80,6 +80,6 @@ public class P10_LoadImage extends RFPage {
 
     @Override
     public void goNext() {
-        pc.navigateTo(new P20_SrcFP(app));
+        pc.navigateTo(new P20_FP(app, P20_FP.SOURCE));
     }
 }

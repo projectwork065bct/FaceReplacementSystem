@@ -1,7 +1,7 @@
 package frs.gui.pages;
 
 import frs.gui.components.IOSUISlider;
-import frs.gui.components.SRGView;
+import frs.gui.components.SRGViewCrossHair;
 import frs.helpers.DeepCopier;
 import hu.droidzone.iosui.IOSUIButton;
 import hu.droidzone.iosui.IOSUILabel;
@@ -20,7 +20,7 @@ import frs.main.RFApplication;
 
 public class P60_Hair extends RFPage {
 
-    SRGView srgView = new SRGView("550px", "400px");
+    SRGViewCrossHair srgView = new SRGViewCrossHair("550px", "400px");
     IOSUIView leftBtnsView = new IOSUIView("95px", "50px,50px,50px,50px,50px,50px,50px,50px");
     IOSUILabel imgLbl;
     IOSUIButton chooseSrcBtn;

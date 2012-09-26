@@ -53,9 +53,9 @@ public class ImageMat {
      */
     public static int[][] findBoundary_Horizontal(int[][] binaryMatrix, int w, int h) {
         int[][] boundary = new int[2][h];
-        System.out.println("the width is "+w+" the height is "+h);
+        //System.out.println("the width is "+w+" the height is "+h);
         if(binaryMatrix==null){
-            System.out.println("the binary matrix passed to findBoundary is null");
+          //  System.out.println("the binary matrix passed to findBoundary is null");
             
         }else
         for (int y = 0; y < h; y++) {
@@ -65,7 +65,7 @@ public class ImageMat {
             for (xMin = 0;  xMin < w ; xMin++) {
                 //boundary[0][y] = xMin;
                 try{
-                    if(binaryMatrix[xMin][y] > 0 && xMin<w/4){
+                    if(binaryMatrix[xMin][y] > 0 && xMin<w/2){
                         boundary[0][y]=xMin;break;
                     }
                 }catch(Exception e){
@@ -100,7 +100,7 @@ public class ImageMat {
             int yMin=0,yMax=h-1;
             for (yMin = 0;  yMin < w ; yMin++) {
                 //boundary[0][y] = xMin;
-                if(binaryMatrix[x][yMin] > 0 && yMin<h/4){
+                if(binaryMatrix[x][yMin] > 0 && yMin<h/2){
                     boundary[x][0]=yMin;break;
                 }
             }

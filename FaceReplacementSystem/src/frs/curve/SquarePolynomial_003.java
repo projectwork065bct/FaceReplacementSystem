@@ -15,7 +15,7 @@ import java.util.List;
 public class SquarePolynomial_003 implements CurveInterface{
     private boolean invert=false; 
     
-    private SquarePolynomial_002 sq2=new SquarePolynomial_002();
+    private Curve sq2=new Curve();
     private Point getMinXPoint(Point[] a){
         Point temp;
         temp=a[0];

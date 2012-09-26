@@ -42,7 +42,7 @@ public class FeaturePointsView extends IOSUIImageView {
     @Override
     public void paint(Graphics g) {
         super.paintComponent(g);
-        g.setColor(Color.red);
+        g.setColor(Color.GREEN);
         //g.drawLine(41,41, 50, 50);
         drawFeaturePoints(g);
     }
@@ -76,7 +76,7 @@ public class FeaturePointsView extends IOSUIImageView {
     }
 
     protected void drawFeaturePoints(Graphics g) {
-        int width = 4;
+        int width = 5;
         //for marking first feature point
         for (int i = 0; i < featurePoints.length; i++) {
             g.drawLine(featurePoints[i].x - width, featurePoints[i].y - width, featurePoints[i].x + width, featurePoints[i].y + width);

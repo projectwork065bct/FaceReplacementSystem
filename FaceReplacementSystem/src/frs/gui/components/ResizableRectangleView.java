@@ -23,8 +23,8 @@ public class ResizableRectangleView extends IOSUIImageView {
 
     Rectangle rect;//= new Rectangle(100, 100, 150, 150);
     Color rectColor = Color.YELLOW;
-
     //constructors
+
     public ResizableRectangleView(String col, String row) {
         super(col, row);
         initComponents();
@@ -70,22 +70,29 @@ public class ResizableRectangleView extends IOSUIImageView {
     //setters and getters
     public void initializeRectangle(Rectangle rect) {
         Rectangle actualRectInImage = rect;
-
         Rectangle resizedRectangle = new Rectangle();
         int recX = actualRectInImage.x;
         int recY = actualRectInImage.y;
         int width = actualRectInImage.width;
         int height = actualRectInImage.height;
-        int stopx = recX + width;
-        int stopy = recY + height;
-
+        int stopX = recX + width;
+        int stopY = recY + height;
         Point a = this.toDrawnImagePoint(new Point(recX, recY));
-        Point b = this.toDrawnImagePoint(new Point(stopx, stopy));
-        resizedRectangle.x = a.x;
-        resizedRectangle.y = a.y;
-        resizedRectangle.width = b.x - a.x;
-        resizedRectangle.height = b.y - a.y;
-        this.rect = resizedRectangle;
+        Point b = this.toDrawnImagePoint(new Point(stopX, stopY));
+        if (a.x < 2) {
+            a.x = 2;
+        }
+        if (a.y < 2) {
+            a.y = 2;
+        }
+        if (b.x > this.getPreferredSize().width - 5) {
+            b.x = this.getPreferredSize().width - 5;
+        }
+        if (b.y > this.getPreferredSize().height - 5) {
+            b.y = this.getPreferredSize().height - 5;
+        }
+        this.rect = new Rectangle(a.x, a.y, b.x - a.x, b.y - a.y);
+
         //System.out.printf("%d,%d,%d,%d",rect.x,rect.y,rect.width,rect.height);
     }
 

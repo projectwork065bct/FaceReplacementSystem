@@ -75,8 +75,12 @@ public class SeedRegionGrowing {
         Point point;
         //All the seed regions are inside the region
         for (int i = 0; i < seedStack.size(); i++) {
-            point = seedStack.get(i);
-            binaryMatrix[point.x][point.y] = INSIDE;
+            try {
+                point = seedStack.get(i);
+                binaryMatrix[point.x][point.y] = INSIDE;
+            } catch (Exception e) {
+                continue;
+            }
         }
         seedCount = seedStack.size();
     }
@@ -95,9 +99,13 @@ public class SeedRegionGrowing {
         float Y, Cb, Cr;
         for (int i = 0; i < seedStack.size(); i++) {
             point = seedStack.get(i);
-            Y = YCbCr[point.x][point.y][ColorModelConverter.Y];
-            Cb = YCbCr[point.x][point.y][ColorModelConverter.Cb];
-            Cr = YCbCr[point.x][point.y][ColorModelConverter.Cr];
+            try {
+                Y = YCbCr[point.x][point.y][ColorModelConverter.Y];
+                Cb = YCbCr[point.x][point.y][ColorModelConverter.Cb];
+                Cr = YCbCr[point.x][point.y][ColorModelConverter.Cr];
+            } catch (Exception e) {
+                continue;
+            }
             if (Y > Ymax) {
                 Ymax = Y;
             }
@@ -154,16 +162,21 @@ public class SeedRegionGrowing {
             Point neighbor;
             for (int i = 0; i < neighborList.size(); i++) {
                 neighbor = neighborList.get(i);
-                if (binaryMatrix[neighbor.x][neighbor.y] != UNDECIDED) {
-                    continue;//If it has already been decided, then no need to worry about it again
-                }
-                if (satisfiesCondition(neighbor)) {
-                    seedStack.push(neighbor);
-                    binaryMatrix[neighbor.x][neighbor.y] = INSIDE;
-                } else {
-                    binaryMatrix[neighbor.x][neighbor.y] = OUTSIDE;
+                try {
+                    if (binaryMatrix[neighbor.x][neighbor.y] != UNDECIDED) {
+                        continue;//If it has already been decided, then no need to worry about it again
+                    }
+                    if (satisfiesCondition(neighbor)) {
+                        seedStack.push(neighbor);
+                        binaryMatrix[neighbor.x][neighbor.y] = INSIDE;
+                    } else {
+                        binaryMatrix[neighbor.x][neighbor.y] = OUTSIDE;
+                    }
+                } catch (Exception e) {
+                    continue;
                 }
             }
+
 
         }
     }
@@ -172,6 +185,7 @@ public class SeedRegionGrowing {
         imageShowingRegion = DeepCopier.getBufferedImage(image, image.getType());
         for (int x = 0; x < image.getWidth(); x++) {
             for (int y = 0; y < image.getHeight(); y++) {
+
                 if (binaryMatrix[x][y] == 1) {
                     imageShowingRegion.setRGB(x, y, c.getRGB());
                 }
@@ -353,7 +367,11 @@ public class SeedRegionGrowing {
         //Calculate total sum
         for (int i = 0; i < seedStack.size(); i++) {
             point = seedStack.get(i);
-            RGB = image.getRGB(point.x, point.y);
+            try {
+                RGB = image.getRGB(point.x, point.y);
+            } catch (Exception e) {
+                continue;
+            }
             c = new Color(RGB);
             R = c.getRed();
             G = c.getGreen();
@@ -375,7 +393,11 @@ public class SeedRegionGrowing {
         float squareR = 0, squareG = 0, squareB = 0;
         for (int i = 0; i < seedStack.size(); i++) {
             point = seedStack.get(i);
-            RGB = image.getRGB(point.x, point.y);
+            try {
+                RGB = image.getRGB(point.x, point.y);
+            } catch (Exception e) {
+                continue;
+            }
             c = new Color(RGB);
             R = c.getRed();
             G = c.getGreen();

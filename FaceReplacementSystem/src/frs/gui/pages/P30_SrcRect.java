@@ -59,15 +59,14 @@ public class P30_SrcRect extends RFPage {
         helpText.setText("Adjust the rectangle around the face.");
         initSnakeUI();
     }
-    
-    protected void initSnakeUI()
-    {
-        IOSUIView snakeView=new IOSUIView("50px,50px","40px,40px,40px");
+
+    protected void initSnakeUI() {
+        IOSUIView snakeView = new IOSUIView("50px,50px", "40px,40px,40px");
         thresholdLbl = new IOSUILabel("Threshold");
-        thresholdLbl.setFont(new Font(Font.SANS_SERIF,Font.BOLD,9));
+        thresholdLbl.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 9));
         thresholdLbl.setForeground(Color.white);
         iterationLbl = new IOSUILabel("Iteration");
-        iterationLbl.setFont(new Font(Font.SANS_SERIF,Font.BOLD,9));
+        iterationLbl.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 9));
         iterationLbl.setForeground(Color.white);
         thresholdTxtField = new IOSUITextField(false);
         thresholdTxtField.setText("3");
@@ -82,7 +81,7 @@ public class P30_SrcRect extends RFPage {
                 try {
                     int thresholdT = Integer.parseInt(thresholdTxtField.getText());
                     int iterationT = Integer.parseInt(iterationTxtField.getText());
-                    
+
                     ImagePlus imageplus = new ImagePlus("G:\\a.jpg");
                     ImageProcessor p = imageplus.getProcessor();
                     imageplus.setRoi(rrv.getX(), rrv.getY(), rrv.WIDTH, rrv.HEIGHT);
@@ -96,21 +95,21 @@ public class P30_SrcRect extends RFPage {
                 }
             }
         });
-        IOSUIView thresholdView = new IOSUIView("50px","40px");
-        IOSUIView iterationView = new IOSUIView("50px","40px");
+        IOSUIView thresholdView = new IOSUIView("50px", "40px");
+        IOSUIView iterationView = new IOSUIView("50px", "40px");
         thresholdView.setBackground(Color.WHITE);
         iterationView.setBackground(Color.WHITE);
-        snakeView.addXY(thresholdLbl,1,1);
-        thresholdView.addXY(thresholdTxtField,1,1);
-        snakeView.addXY(thresholdView,2,1);
-        snakeView.addXY(iterationLbl,1,2);
-        iterationView.addXY(iterationTxtField,1,1);
-        
-        snakeView.addXY(iterationView,2,2);
-        snakeView.addXYW(snakePreviewBtn,1,3,2);
-        
-        buttonsView.addXYWH(snakeView,1,7,1,3);
-        
+        snakeView.addXY(thresholdLbl, 1, 1);
+        thresholdView.addXY(thresholdTxtField, 1, 1);
+        snakeView.addXY(thresholdView, 2, 1);
+        snakeView.addXY(iterationLbl, 1, 2);
+        iterationView.addXY(iterationTxtField, 1, 1);
+
+        snakeView.addXY(iterationView, 2, 2);
+        snakeView.addXYW(snakePreviewBtn, 1, 3, 2);
+
+        buttonsView.addXYWH(snakeView, 1, 7, 1, 3);
+
     }
 
     protected void initializeButtons() {
@@ -158,37 +157,33 @@ public class P30_SrcRect extends RFPage {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-               /* setSourceRectangle();
-                frs.detectSourceSkin();
-                
-                frs.shrinkSource();
-                frs.growSource();
-                
-                frs.findSourceCurves();
-                
-                
-                frs.useSrcCurves();
-                
-                frs.drawSourceCurves();
-                rrv.setImage(frs.getSourceImageWithCurve());*/
-                
+                /*
+                 * setSourceRectangle(); frs.detectSourceSkin();
+                 *
+                 * frs.shrinkSource(); frs.growSource();
+                 *
+                 * frs.findSourceCurves();
+                 *
+                 *
+                 * frs.useSrcCurves();
+                 *
+                 * frs.drawSourceCurves();
+                rrv.setImage(frs.getSourceImageWithCurve());
+                 */
+
 //                frs.findSourceBoundaryFilledMatrix();
 //                frs.findSourceBoundaryFilledImage();
 //                rrv.setImage(frs.getSourceBoundaryFilledImage());
 //                rrv.setImage(frs.getSourceRectangleImage());
-                
-                
+
+
                 setSourceRectangle();
                 frs.detectSourceSkin();
                 frs.shrinkSource();
                 frs.growSource();
                 frs.findSourceCurves();
                 frs.useSrcCurves();
-                try {
-                    frs.findSourceBoundaryFilledMatrix();
-                } catch (IOException ex) {
-                    Logger.getLogger(P30_SrcRect.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                frs.findSourceBoundaryFilledMatrix();
                 frs.findSourceBoundaryFilledImage();
                 rrv.setImage(frs.getSourceBoundaryFilledImage());
             }
@@ -205,19 +200,18 @@ public class P30_SrcRect extends RFPage {
             }
         });
         buttonsView.addXY(drawRotatedSrcFaceBtn, 1, 6);
-        
-        IOSUIButton chinCurve=new IOSUIButton(new AbstractAction("Draw Curve"){
+
+        IOSUIButton chinCurve = new IOSUIButton(new AbstractAction("Draw Curve") {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                BufferedImage b=DeepCopier.getBufferedImage(frs.getSrcImg(), frs.getSrcImg().getType());
-                Graphics g=b.getGraphics();
-                List<Point> le=frs.getSourceRectLeftEdge();
-                for(int i=0;i<le.size();i++){
+                BufferedImage b = DeepCopier.getBufferedImage(frs.getSrcImg(), frs.getSrcImg().getType());
+                Graphics g = b.getGraphics();
+                List<Point> le = frs.getSourceRectLeftEdge();
+                for (int i = 0; i < le.size(); i++) {
                     g.drawOval(le.get(i).x, le.get(i).y, 1, 1);
                 }
             }
-            
         });
         //buttonsView.addXY(chinCurve, 2, 5);
     }
@@ -225,23 +219,12 @@ public class P30_SrcRect extends RFPage {
     @Override
     public void goNext() {
         setSourceRectangle();
-        frs.detectSourceSkin();
-        frs.shrinkSource();
-        frs.growSource();
-        frs.findSourceCurves();
-        frs.useSrcCurves();
-        try {
-            frs.findSourceBoundaryFilledMatrix();
-        } catch (IOException ex) {
-            Logger.getLogger(P30_SrcRect.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        frs.findSourceBoundaryFilledImage();
-        pc.navigateTo(new P40_TarFP(app));
+
+        pc.navigateTo(new P35_SrcFace(app));
     }
 
     //Saves the rectangle drawn around the face
     //Also extracts the subimage inside the rectangle
-   
     public void setSourceRectangle() {
         Rectangle r = rrv.getRectangle();
         Rectangle resized = new Rectangle();

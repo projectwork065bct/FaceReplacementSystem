@@ -57,16 +57,16 @@ public class IOSUIImageView extends IOSUIView {
     //The coordinates should be taken with respect to actual image, not with the drawn image
     public Point toActualImagePoint(Point point) {
         int x, y;
-        x = image.getWidth() * point.x / newImageW;
-        y = image.getHeight() * point.y / newImageH;
+        x = (int) (image.getWidth() * (float) point.x / newImageW);
+        y = (int) (image.getHeight() * (float) point.y / newImageH);
         return new Point(x, y);
     }
 
     //This function converts a coordinate into the coordinate which would be drawn into this View
     public Point toDrawnImagePoint(Point point) {
         int x, y;
-        x = point.x * newImageW / image.getWidth();
-        y = point.y * newImageH / image.getHeight();
+        x = (int) (point.x * (float) newImageW / image.getWidth());
+        y = (int) (point.y * (float) newImageH / image.getHeight());
         return new Point(x, y);
     }
 

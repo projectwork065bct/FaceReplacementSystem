@@ -17,25 +17,24 @@ import java.util.Stack;
  * @author Dell
  */
 public class FRSData {
+
     protected int originIndex;
-    
     protected BufferedImage srcImg, tarImg;//Original images loaded by the user
     protected Point[] srcFP, tarFP;//Feature Points (top left corner of the images are taken as the origins)
     protected BufferedImage rotatedSrcImg;//Image obtained after rotating the source image according to eye axis
     protected Point[] rotatedSrcFP;//Feature points of the rotated source image
-    
     protected Rectangle srcFaceRect, tarFaceRect;//Rectangles drawn around the face of both the images
     protected BufferedImage srcRectImg, tarRectImg;//Images of rectangles drawn around the faces
     protected Point srcRectFP[], tarRectFP[];//feature points with reference to origin of the that the user has drawn rectangles
     protected BufferedImage srcRectImgWithFP;//Image showing feature points of source
     protected List<Point> srcRectLeftEdge = null, srcRectRightEdge = null, tarRectLeftEdge = null, tarRectRightEdge = null;//Edges after chin curves are detected
-    
     protected BufferedImage srcSkinImg, tarSkinImg;//Image which shows skin inside the rectangle drawn around the images
     protected int[][] srcSkinMatrix, tarSkinMatrix;//Matrix with skin pixels set to 1 and non-skin pixels set to 0
     protected int[][] shrunkMatrix, grownMatrix;
     protected BufferedImage shrunkSrcImage, grownSrcImage;
     protected int[][] srcMatrixWithChinCurve;//The chin curve pixels are set to 1
     protected BufferedImage srcImgWithCurve;
+    protected List<Point> srcRightCurve, srcLeftCurve;
     protected int[][] sourceBoundaryFilledFaceMatrix = null;
     protected BufferedImage sourceBoundaryFilledImage;
     //Next step is to warp the image. The source image should be warped according to the feature points of the target image.
@@ -66,7 +65,7 @@ public class FRSData {
     protected BufferedImage replacedFaceWithSourceHair;
     protected BufferedImage replacedFaceWithTargetHair;
     protected BufferedImage replacedFaceImage;
-    protected String whichHairStr;//it can be "source" or "target"
+    protected String whichHairStr="target";//it can be "source" or "target"
 
     public BufferedImage getBlendedImage() {
         return blendedImage;
@@ -398,6 +397,8 @@ public class FRSData {
         this.shrunkSrcImage = shrunkSrcImage;
     }
 
+    
+    
     public BufferedImage getSourceImageWithCurve() {
         return srcImgWithCurve;
     }
@@ -405,7 +406,6 @@ public class FRSData {
     public void setSourceImageWithCurve(BufferedImage sourceImageWithCurve) {
         this.srcImgWithCurve = sourceImageWithCurve;
     }
-
 
     public int[][] getSrcMatrixWithChinCurve() {
         return srcMatrixWithChinCurve;
@@ -507,6 +507,8 @@ public class FRSData {
         }
     }
 
+    
+    
     //Other initialization functions
     public void createSourceHairMatrix() {
         sourceHairMatrix = new int[srcImg.getWidth()][srcImg.getHeight()];

@@ -5,15 +5,11 @@
  */
 package frs.engine;
 
-import frs.helpers.SnakeClass;
-import frs.helpers.SnakeInitializer;
-import frs.curve.SquarePolynomial_002;
 import frs.algorithms.*;
+import frs.curve.BestSideCurves;
+import frs.curve.Curve;
 import frs.dataTypes.FeaturePoint;
-import frs.helpers.ColorModelConverter;
-import frs.helpers.DeepCopier;
-import frs.helpers.GeometricTransformation;
-import frs.helpers.MatrixAndImage;
+import frs.helpers.*;
 import ij.ImagePlus;
 import ij.process.ImageProcessor;
 import java.awt.Color;
@@ -25,6 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 /**
@@ -32,9 +30,8 @@ import javax.imageio.ImageIO;
  * @author Dell
  */
 public class FRSEngine extends FRSData {
-    
-    // <editor-fold defaultstate="collapsed" desc="Rotate source image according to eye axis">
 
+    // <editor-fold defaultstate="collapsed" desc="Rotate source image according to eye axis">
     //Rotate the source around left eye by the angle between left eye and right eye
     //It rotates the image and stores the result in the rotatedSrcImg
     public void rotateSource() {
@@ -101,6 +98,7 @@ public class FRSEngine extends FRSData {
 
     // <editor-fold defaultstate="collapsed" desc="Detect the skin in source and target">
     //Detect the skin region of the source
+    //One method is to apply threshold values of YCbCr Color
     public void detectSourceSkin() {
         SkinColorDetector sourceSkinDetector = new SkinColorDetectorUsingThreshold(srcRectImg);
         sourceSkinDetector.detectSkin();
@@ -137,11 +135,33 @@ public class FRSEngine extends FRSData {
         detectSourceSkin();
         detectTargetSkin();
     }
+
+    //Another method of extracting the face is Snake Algorithm
+    public void applySnakeToSrc(int threshold, int iteration) {
+        try {
+            ImageIO.write(srcImg, "jpg", new File(TempImagePath));
+        } catch (IOException ex) {
+            Logger.getLogger(FRSEngine.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        ImagePlus imageplus = new ImagePlus(TempImagePath);
+        ImageProcessor p = imageplus.getProcessor();
+        imageplus.setRoi(srcFaceRect.x, srcFaceRect.y, srcFaceRect.width, srcFaceRect.height);
+        SnakeInitializer a = new SnakeInitializer();
+        a.setIte(iteration);
+        a.setThreholdOfEdge(threshold);
+        a.set(imageplus);
+        try {
+            a.run(imageplus.getProcessor());
+        } catch (IOException ex) {
+            Logger.getLogger(FRSEngine.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        sourceBoundaryFilledFaceMatrix = SnakeClass.getFaceEdgecoordinates2(srcFaceRect);
+    }
     //</editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Find chin curves in the source">
     public void findSourceCurves() {
-        SquarePolynomial_002 leftCurve = new SquarePolynomial_002();
+        Curve leftCurve = new Curve();
         Point[] leftCurvePoints = {srcRectFP[FeaturePoint.CHIN], srcRectFP[FeaturePoint.LEFT_CHIN],
             srcRectFP[FeaturePoint.LEFT_CHEEK]};
         //setting the example points, at least 3 required
@@ -149,12 +169,20 @@ public class FRSEngine extends FRSData {
         Point[] leftCurveEnds = {srcRectFP[FeaturePoint.LEFT_CHEEK], srcRectFP[FeaturePoint.CHIN]};
         srcRectLeftEdge = leftCurve.getPoints(leftCurveEnds);//getting the fitted Points
 
-        SquarePolynomial_002 rightCurve = new SquarePolynomial_002();
+        Curve rightCurve = new Curve();
         Point[] rightCurvePoints = {srcRectFP[FeaturePoint.CHIN], srcRectFP[FeaturePoint.RIGHT_CHIN],
             srcRectFP[FeaturePoint.RIGHT_CHEEK]};
         rightCurve.setPoints(rightCurvePoints);
         Point[] rightCurveEnds = {srcRectFP[FeaturePoint.CHIN], srcRectFP[FeaturePoint.RIGHT_CHEEK]};
         srcRectRightEdge = rightCurve.getPoints(rightCurveEnds);
+        findSrcSideCurves();
+    }
+
+    public void findSrcSideCurves() {
+        BestSideCurves bsc = new BestSideCurves(srcRectImg, srcRectFP);
+        srcRightCurve = bsc.getRightCurve();
+        srcLeftCurve = bsc.getLeftCurve();
+
     }
 
     //Draw the chin curve in the source image
@@ -185,60 +213,31 @@ public class FRSEngine extends FRSData {
                 srcMatrixWithChinCurve[x][y] = grownMatrix[x][y];
             }
         }
-        useLeftSrcCurve();
-        useRightSrcCurve();
-    }
+        int xMin = srcRectLeftEdge.get(0).x;
+        int xMax = srcRectRightEdge.get(0).x;
+        int yMin = srcRectLeftEdge.get(0).y;
+        if (srcRectRightEdge.get(0).y < yMin) {
+            yMin = srcRectRightEdge.get(0).y;
+        }
 
-    protected void useLeftSrcCurve() {
-        //Set the left and bottom pixels below the chin points  to 0 for left edge
-        //The point in the chin itself is set to 1
-        Point lcp;//left curve point
+        for (int x = 0; x < srcRectImg.getWidth(); x++) {
+            for (int y = yMin; y < srcRectImg.getHeight(); y++) {
+                srcMatrixWithChinCurve[x][y] = 0;
+            }
+        }
+
+        //Set the curve points to 1
+        Point lcp, rcp;
         for (int i = 0; i < srcRectLeftEdge.size(); i++) {
             lcp = srcRectLeftEdge.get(i);
-            for (int x = 0; x < lcp.x; x++) {
-                try {
-                    srcMatrixWithChinCurve[x][lcp.y] = 0;
-                } catch (Exception e) {
-                    continue;
-                }
-            }
-            for (int y = lcp.y + 1; y < srcRectImg.getHeight(); y++) {
-                try {
-                    srcMatrixWithChinCurve[lcp.x][y] = 0;
-                } catch (Exception e) {
-                    continue;
-                }
-            }
             try {
                 srcMatrixWithChinCurve[lcp.x][lcp.y] = 1;
-                //System.out.printf("\nIt is possible to fill at (%d,%d)\n", lcp.x, lcp.y);
             } catch (Exception e) {
-                //System.out.printf("\nCan't fill srcMatrixWithChinCurve at (%d,%d) \n", lcp.x, lcp.y);
                 continue;
             }
         }
-    }
-
-    protected void useRightSrcCurve() {
-        //Set the right and bottom pixels below the chin points to 0
-        //The point in the chin itself is set to 1
-        Point rcp;//right curve point
-        for (int i = srcRectRightEdge.size() - 1; i >= 0; i--) {
+        for (int i = 0; i < srcRectRightEdge.size(); i++) {
             rcp = srcRectRightEdge.get(i);
-            for (int x = rcp.x; x < srcRectImg.getWidth(); x++) {
-                try {
-                    srcMatrixWithChinCurve[x][rcp.y] = 0;
-                } catch (Exception e) {
-                    continue;
-                }
-            }
-            for (int y = rcp.y + 1; y < srcRectImg.getHeight(); y++) {
-                try {
-                    srcMatrixWithChinCurve[rcp.x][y] = 0;
-                } catch (Exception e) {
-                    continue;
-                }
-            }
             try {
                 srcMatrixWithChinCurve[rcp.x][rcp.y] = 1;
             } catch (Exception e) {
@@ -246,34 +245,33 @@ public class FRSEngine extends FRSData {
             }
         }
     }
-
     //</editor-fold>
-    
     //<editor-fold defaultstate="collapsed" desc="Extract the boundary around the face">
-    private String TempImagePath = "G:\\a.jpg";
-    public void findSourceBoundaryFilledMatrix() throws IOException {
-        
-//        int w = srcFaceRect.width;
-//        int h = srcFaceRect.height;
-//        int[][] erectMatrix;//=ImageMat.invertMatrix(finerMatrix, h, w);
-//        erectMatrix = ImageMat.boundaryFilledTwoWay(srcMatrixWithChinCurve, w, h);
-//        sourceBoundaryFilledFaceMatrix = erectMatrix;//ImageMat.holeFillAccordingToBoundary(erectMatrix, w, h);
-        ImageIO.write(srcImg, "jpg", new File(TempImagePath));
-        ImagePlus imageplus = new ImagePlus(TempImagePath);
-        ImageProcessor p = imageplus.getProcessor();
-        imageplus.setRoi(srcFaceRect.x, srcFaceRect.y, srcFaceRect.width, srcFaceRect.height);
-        SnakeInitializer a = new SnakeInitializer();
-        a.setIte(10);
-        a.setThreholdOfEdge(3);
-        a.set(imageplus); 
-        a.run(imageplus.getProcessor());     
-        sourceBoundaryFilledFaceMatrix = SnakeClass.getFaceEdgecoordinates2(srcFaceRect);
+    private String TempImagePath = "a.jpg";
+
+    public void findSourceBoundaryFilledMatrix() {
+        int w = srcFaceRect.width;
+        int h = srcFaceRect.height;
+        int[][] erectMatrix;//=ImageMat.invertMatrix(finerMatrix, h, w);
+        MatFiller matFiller = new MatFiller(srcMatrixWithChinCurve, w, h);
+        sourceBoundaryFilledFaceMatrix = matFiller.getMatrix();
+        //erectMatrix = ImageMat.boundaryFilledTwoWay(srcMatrixWithChinCurve, w, h);
+        //sourceBoundaryFilledFaceMatrix = erectMatrix;//ImageMat.holeFillAccordingToBoundary(erectMatrix, w, h);
     }
 
+    public void removeSrcHairFromFace() {
+        int[][] srcHairRectMat = MatrixOperations.getSubMatrix(srcFaceRect, sourceHairMatrix, srcImg.getWidth(), srcImg.getHeight());
+        sourceBoundaryFilledFaceMatrix = MatrixOperations.subtract(sourceBoundaryFilledFaceMatrix, srcHairRectMat, srcFaceRect.width, srcFaceRect.height);
+    }
+
+    public void removeTarHairFromFace() {
+        int[][] tarHairRectMat = MatrixOperations.getSubMatrix(tarFaceRect, targetHairMatrix, tarImg.getWidth(), tarImg.getHeight());
+        tarSkinMatrix = MatrixOperations.subtract(tarSkinMatrix, tarHairRectMat, tarFaceRect.width, tarFaceRect.height);
+    }
     //Construct an image from sourceBoundaryFilledFaceMatrix
+
     public void findSourceBoundaryFilledImage() {
         sourceBoundaryFilledImage = DeepCopier.getBufferedImage(srcRectImg, BufferedImage.TYPE_INT_ARGB);
-        
         Color actualColor;
         Color transparentColor;
         for (int x = 0; x < sourceBoundaryFilledImage.getWidth(); x++) {
@@ -283,6 +281,24 @@ public class FRSEngine extends FRSData {
                     transparentColor = ColorModelConverter.getTransparentColor(actualColor);
                     sourceBoundaryFilledImage.setRGB(x, y, transparentColor.getRGB());
                 }
+            }
+        }
+
+        for (int i = 0; i < srcRightCurve.size(); i++) {
+            Point p = srcRightCurve.get(i);
+            try {
+                sourceBoundaryFilledImage.setRGB(p.x, p.y, new Color(255, 0, 0).getRGB());
+            } catch (Exception e) {
+                continue;
+            }
+        }
+
+        for (int i = 0; i < srcLeftCurve.size(); i++) {
+            Point p = srcLeftCurve.get(i);
+            try {
+                sourceBoundaryFilledImage.setRGB(p.x, p.y, new Color(255, 0, 0).getRGB());
+            } catch (Exception e) {
+                continue;
             }
         }
     }
@@ -345,52 +361,66 @@ public class FRSEngine extends FRSData {
         replacedFaceImage = blendedImage;
     }
     //</editor-fold>
-    
-    // <editor-fold defaultstate="collapsed" desc="Detect Hair">
 
+    // <editor-fold defaultstate="collapsed" desc="Detect Hair">
     public void detectSourceHair() {
-        SeedRegionGrowing srg = new SeedRegionGrowing(srcImg, sourceHairSeeds, srgThreshold);
-        //srg.growRegion();
-        int[][] hairMatrix = srg.getBinaryMatrix();
+
         int value = 1;
+        //apply SRG if the region is to be grown
         if (srgMode.toLowerCase().compareTo("add") == 0) {
+            SeedRegionGrowing srg = new SeedRegionGrowing(srcImg, sourceHairSeeds, srgThreshold);
+            //srg.growRegion();
+            int[][] hairMatrix = srg.getBinaryMatrix();
             value = 1;
-        }
-        if (srgMode.toLowerCase().compareTo("remove") == 0) {
-            value = 0;
-        }
-        for (int x = 0; x < srcImg.getWidth(); x++) {
-            for (int y = 0; y < srcImg.getHeight(); y++) {
-                if (hairMatrix[x][y] == SeedRegionGrowing.INSIDE) {
-                    sourceHairMatrix[x][y] = value;
+            for (int x = 0; x < srcImg.getWidth(); x++) {
+                for (int y = 0; y < srcImg.getHeight(); y++) {
+                    if (hairMatrix[x][y] == SeedRegionGrowing.INSIDE) {
+                        sourceHairMatrix[x][y] = value;
+                    }
                 }
             }
+            SRGFilter srgFilter = new SRGFilter(sourceHairMatrix, srcImg.getWidth(), srcImg.getHeight(), 15);
+            srgFilter.applyFilter();
+            sourceHairMatrix = srgFilter.getFilteredMatrix();
+        } //apply eraser if the seeds are to be removed
+        else if (srgMode.toLowerCase().compareTo("remove") == 0) {
+            MatrixOperations.erase(sourceHairMatrix, sourceHairSeeds);
         }
+
+
         //sourceHairMatrix = srg.imageToBinaryMatrix();
         srcHairImgShowingRegion = MatrixAndImage.getHighlightedImage(srcImg, sourceHairMatrix, Color.red);
         //sourceHairImage = MatrixAndImage.matrixToImage(srcImg, sourceHairMatrix);
+        sourceHairSeeds = null;
     }
 
     public void detectTargetHair() {
-        SeedRegionGrowing srg = new SeedRegionGrowing(tarImg, targetHairSeeds, srgThreshold);
-        int[][] hairMatrix = srg.getBinaryMatrix();
         int value = 1;
+        //apply SRG if the region is to be grown
         if (srgMode.toLowerCase().compareTo("add") == 0) {
-            value = 1;//1=add
-        }
-        if (srgMode.toLowerCase().compareTo("remove") == 0) {
-            value = 0;//0 means remove (make it transparent)
-        }
-        for (int x = 0; x < tarImg.getWidth(); x++) {
-            for (int y = 0; y < tarImg.getHeight(); y++) {
-                if (hairMatrix[x][y] == SeedRegionGrowing.INSIDE) {
-                    targetHairMatrix[x][y] = value;
+            SeedRegionGrowing srg = new SeedRegionGrowing(tarImg, targetHairSeeds, srgThreshold);
+            //srg.growRegion();
+            int[][] hairMatrix = srg.getBinaryMatrix();
+            for (int x = 0; x < tarImg.getWidth(); x++) {
+                for (int y = 0; y < tarImg.getHeight(); y++) {
+                    if (hairMatrix[x][y] == SeedRegionGrowing.INSIDE) {
+                        targetHairMatrix[x][y] = value;
+                    }
                 }
             }
+            SRGFilter srgFilter = new SRGFilter(targetHairMatrix, tarImg.getWidth(), tarImg.getHeight(), 15);
+            srgFilter.applyFilter();
+            targetHairMatrix = srgFilter.getFilteredMatrix();
+        } //apply eraser if the seeds are to be removed
+        else if (srgMode.toLowerCase().compareTo("remove") == 0) {
+            MatrixOperations.erase(targetHairMatrix, targetHairSeeds);
         }
-        //targetHairMatrix = srg.imageToBinaryMatrix();
+
+
+        //sourceHairMatrix = srg.imageToBinaryMatrix();
         tarHairImgShowingRegion = MatrixAndImage.getHighlightedImage(tarImg, targetHairMatrix, Color.red);
-        //targetHairImage = MatrixAndImage.matrixToImage(tarImg, targetHairMatrix);
+        //sourceHairImage = MatrixAndImage.matrixToImage(srcImg, sourceHairMatrix);
+        targetHairSeeds = null;
     }
 
     public void addSourceHairToReplacedFace() {
