@@ -326,8 +326,9 @@ public class FRSEngine extends FRSData {
     //<editor-fold defaultstate="collapsed" desc="Apply color consistency">
     public void applyColorConsistency() {
         //Adjust the color of the warped image according to the color of the target image
-        meanColorShifter = new MeanColorShifter(warpedImage, tarSkinImg);
-        colorConsistentImage = meanColorShifter.runGet();
+//        meanColorShifter = new MeanColorShifter(warpedImage, tarSkinImg);
+//        colorConsistentImage = meanColorShifter.runGet();
+        colorConsistentImage = HistogramMatching.changeColorToTarget(warpedImage, tarSkinImg);
     }
     //</editor-fold>
 
