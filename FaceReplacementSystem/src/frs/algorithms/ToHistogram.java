@@ -22,6 +22,7 @@ public class ToHistogram {
             for(int j=0;j<b.getHeight();j++){
                 c = new Color(b.getRGB(i, j),true);
                 if(c.getAlpha()>200){
+                    System.out.println(c.getAlpha());
                 his[0][c.getRed()]++;
                 his[1][c.getGreen()]++;
                 his[2][c.getBlue()]++;
