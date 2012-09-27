@@ -326,9 +326,16 @@ public class FRSEngine extends FRSData {
     //<editor-fold defaultstate="collapsed" desc="Apply color consistency">
     public void applyColorConsistency() {
         //Adjust the color of the warped image according to the color of the target image
-//        meanColorShifter = new MeanColorShifter(warpedImage, tarSkinImg);
-//        colorConsistentImage = meanColorShifter.runGet();
+       // meanColorShifter = new MeanColorShifter(warpedImage, tarSkinImg);
+        //colorConsistentImage = meanColorShifter.runGet();
+        
         colorConsistentImage = HistogramMatching.changeColorToTarget(warpedImage, tarSkinImg);
+//        try {
+//            ImageIO.write(colorConsistentImage,"png",new File("D:\\Result.png"));
+//            System.exit(5);
+//        } catch (IOException ex) {
+//            Logger.getLogger(FRSEngine.class.getName()).log(Level.SEVERE, null, ex);
+//        }
     }
     //</editor-fold>
 
@@ -465,7 +472,7 @@ public class FRSEngine extends FRSData {
         for (int x = 0; x < colorConsistentImage.getWidth(); x++) {
             for (int y = 0; y < colorConsistentImage.getHeight(); y++) {
                 Color c = new Color(colorConsistentImage.getRGB(x, y), true);
-                if (c.getAlpha() < 255) {
+                if (c.getAlpha() < 150) {
                     continue;
                 }
                 try {

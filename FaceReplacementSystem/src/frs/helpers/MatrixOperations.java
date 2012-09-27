@@ -25,7 +25,10 @@ public class MatrixOperations {
         for (int i = 0; i < (xEnd - xStart + 1); i++) {
             subMatrix[i] = new int[yEnd - yStart + 1];
             for (int j = 0; j < (yEnd - yStart + 1); j++) {
+                try{
                 subMatrix[i][j] = matrix[xStart + i][yStart + j];
+                }catch(Exception e)
+                {continue;}
             }
         }
         return subMatrix;
