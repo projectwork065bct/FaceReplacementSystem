@@ -57,6 +57,7 @@ public class P30_Hair extends RFPage {
     public P30_Hair(RFApplication app, int identity) {
         super(app, "Specify the hair region");
         this.identity = identity;
+        frs.setSrgThreshold((float) .5);
         initData();
         initComponents();
         addXY(mainView, 1, 1);
@@ -185,9 +186,13 @@ public class P30_Hair extends RFPage {
         rectSelectLbl.setFont(f);
         rectSelectLbl.setForeground(Color.white);
         rectSelectView.addXY(rectSelectLbl, 1, 1);
+
         rectSelectTF = new IOSUITextField(f, false);
+        IOSUIView rectSelectBackView = new IOSUIView("180px", "30px");
+        rectSelectBackView.setBackground(Color.white);
         rectSelectTF.setText("5");
-        rectSelectView.addXY(rectSelectTF, 1, 3);
+        rectSelectBackView.addXY(rectSelectTF, 1, 1);
+        rectSelectView.addXY(rectSelectBackView, 1, 3);
         rectSelectBtn = new IOSUIButton(new AbstractAction("Set Size") {
 
             @Override

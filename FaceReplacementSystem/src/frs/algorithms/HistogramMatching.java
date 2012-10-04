@@ -32,7 +32,7 @@ public class HistogramMatching {
             for(int j=0;j<source.getHeight();j++){
                 
                 c1 = new Color(source.getRGB(i, j),true);
-                if(c1.getAlpha()>200){
+                if(c1.getAlpha()>150){
                 //System.out.println(resultHis[1][c1.getGreen()]+" "+resultHis[2][c1.getBlue()]);
                 c2 = new Color(resultHis[0][c1.getRed()],resultHis[1][c1.getGreen()] ,resultHis[2][c1.getBlue()], c1.getAlpha() );
                 result.setRGB(i, j, c2.getRGB());

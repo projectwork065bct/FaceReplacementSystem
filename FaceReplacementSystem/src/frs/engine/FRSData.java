@@ -65,7 +65,16 @@ public class FRSData {
     protected BufferedImage replacedFaceWithSourceHair;
     protected BufferedImage replacedFaceWithTargetHair;
     protected BufferedImage replacedFaceImage;
-    protected String whichHairStr="target";//it can be "source" or "target"
+    protected String whichHairStr = "target";//it can be "source" or "target"
+    protected BufferedImage AlphaBlendedFace;
+    protected int blendingAlgorithmSelector = 2;
+    protected boolean flagForCurve = false; //snake doesnot require any curve bound
+    protected int blendIterations=10;
+    
+    public void setFlagForCurve(boolean flagForCurve) {
+        this.flagForCurve = flagForCurve;
+    }
+    
 
     public BufferedImage getBlendedImage() {
         return blendedImage;
@@ -397,8 +406,6 @@ public class FRSData {
         this.shrunkSrcImage = shrunkSrcImage;
     }
 
-    
-    
     public BufferedImage getSourceImageWithCurve() {
         return srcImgWithCurve;
     }
@@ -507,8 +514,6 @@ public class FRSData {
         }
     }
 
-    
-    
     //Other initialization functions
     public void createSourceHairMatrix() {
         sourceHairMatrix = new int[srcImg.getWidth()][srcImg.getHeight()];
@@ -528,5 +533,13 @@ public class FRSData {
                 targetHairMatrix[x][y] = 0;
             }
         }
+    }
+    
+    //
+    public void setBlendIterations(int blendIterations){
+        this.blendIterations=blendIterations;
+    }
+    public int getBlendIterations(){
+        return blendIterations;
     }
 }

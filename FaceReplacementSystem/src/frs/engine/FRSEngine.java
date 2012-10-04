@@ -9,11 +9,14 @@ import frs.algorithms.*;
 import frs.curve.BestSideCurves;
 import frs.curve.Curve;
 import frs.dataTypes.FeaturePoint;
+import frs.gui.pages.P80_Replace;
 import frs.helpers.*;
 import ij.ImagePlus;
 import ij.process.ImageProcessor;
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -105,6 +108,7 @@ public class FRSEngine extends FRSData {
         srcSkinMatrix = sourceSkinDetector.getSkinMatrix();//size =FaceRectangle
         //findSourceCurves();
         //filterSourceCurve();
+        grownMatrix = DeepCopier.get2DMat(srcSkinMatrix, srcFaceRect.width, srcFaceRect.height);
         srcSkinImg = sourceSkinDetector.getSkinImage();
     }
 
@@ -144,7 +148,6 @@ public class FRSEngine extends FRSData {
             Logger.getLogger(FRSEngine.class.getName()).log(Level.SEVERE, null, ex);
         }
         ImagePlus imageplus = new ImagePlus(TempImagePath);
-        ImageProcessor p = imageplus.getProcessor();
         imageplus.setRoi(srcFaceRect.x, srcFaceRect.y, srcFaceRect.width, srcFaceRect.height);
         SnakeInitializer a = new SnakeInitializer();
         a.setIte(iteration);
@@ -155,7 +158,8 @@ public class FRSEngine extends FRSData {
         } catch (IOException ex) {
             Logger.getLogger(FRSEngine.class.getName()).log(Level.SEVERE, null, ex);
         }
-        sourceBoundaryFilledFaceMatrix = SnakeClass.getFaceEdgecoordinates2(srcFaceRect);
+        grownMatrix = SnakeClass.getFaceEdgecoordinates2(srcFaceRect);
+        //sourceBoundaryFilledFaceMatrix = SnakeClass.getFaceEdgecoordinates2(srcFaceRect);
     }
     //</editor-fold>
 
@@ -175,7 +179,7 @@ public class FRSEngine extends FRSData {
         rightCurve.setPoints(rightCurvePoints);
         Point[] rightCurveEnds = {srcRectFP[FeaturePoint.CHIN], srcRectFP[FeaturePoint.RIGHT_CHEEK]};
         srcRectRightEdge = rightCurve.getPoints(rightCurveEnds);
-        findSrcSideCurves();
+        //findSrcSideCurves();
     }
 
     public void findSrcSideCurves() {
@@ -246,6 +250,7 @@ public class FRSEngine extends FRSData {
         }
     }
     //</editor-fold>
+    
     //<editor-fold defaultstate="collapsed" desc="Extract the boundary around the face">
     private String TempImagePath = "a.jpg";
 
@@ -254,9 +259,9 @@ public class FRSEngine extends FRSData {
         int h = srcFaceRect.height;
         int[][] erectMatrix;//=ImageMat.invertMatrix(finerMatrix, h, w);
         MatFiller matFiller = new MatFiller(srcMatrixWithChinCurve, w, h);
-        sourceBoundaryFilledFaceMatrix = matFiller.getMatrix();
-        //erectMatrix = ImageMat.boundaryFilledTwoWay(srcMatrixWithChinCurve, w, h);
-        //sourceBoundaryFilledFaceMatrix = erectMatrix;//ImageMat.holeFillAccordingToBoundary(erectMatrix, w, h);
+        //sourceBoundaryFilledFaceMatrix = matFiller.getMatrix();
+        erectMatrix = ImageMat.boundaryFilledTwoWay(srcMatrixWithChinCurve, w, h);
+        sourceBoundaryFilledFaceMatrix = erectMatrix;//ImageMat.holeFillAccordingToBoundary(erectMatrix, w, h);
     }
 
     public void removeSrcHairFromFace() {
@@ -283,24 +288,25 @@ public class FRSEngine extends FRSData {
                 }
             }
         }
-
-        for (int i = 0; i < srcRightCurve.size(); i++) {
-            Point p = srcRightCurve.get(i);
-            try {
-                sourceBoundaryFilledImage.setRGB(p.x, p.y, new Color(255, 0, 0).getRGB());
-            } catch (Exception e) {
-                continue;
-            }
-        }
-
-        for (int i = 0; i < srcLeftCurve.size(); i++) {
-            Point p = srcLeftCurve.get(i);
-            try {
-                sourceBoundaryFilledImage.setRGB(p.x, p.y, new Color(255, 0, 0).getRGB());
-            } catch (Exception e) {
-                continue;
-            }
-        }
+ if(flagForCurve){
+//        for (int i = 0; i < srcRightCurve.size(); i++) {
+//            Point p = srcRightCurve.get(i);
+//            try {
+//                sourceBoundaryFilledImage.setRGB(p.x, p.y, new Color(255, 0, 0).getRGB());
+//            } catch (Exception e) {
+//                continue;
+//            }
+//        }
+//
+//        for (int i = 0; i < srcLeftCurve.size(); i++) {
+//            Point p = srcLeftCurve.get(i);
+//            try {
+//                sourceBoundaryFilledImage.setRGB(p.x, p.y, new Color(255, 0, 0).getRGB());
+//            } catch (Exception e) {
+//                continue;
+//            }
+//        }
+ }
     }
     //</editor-fold>
 
@@ -324,18 +330,15 @@ public class FRSEngine extends FRSData {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Apply color consistency">
-    public void applyColorConsistency() {
+    public void applyColorConsistency_meanShift() {
         //Adjust the color of the warped image according to the color of the target image
-       // meanColorShifter = new MeanColorShifter(warpedImage, tarSkinImg);
-        //colorConsistentImage = meanColorShifter.runGet();
-        
+         meanColorShifter = new MeanColorShifter(warpedImage, tarSkinImg);
+       colorConsistentImage = meanColorShifter.runGet();
+        //colorConsistentImage = HistogramMatching.changeColorToTarget(warpedImage, tarSkinImg);
+    }
+    public void applyColorConsistency_HistogramMatch() {
         colorConsistentImage = HistogramMatching.changeColorToTarget(warpedImage, tarSkinImg);
-//        try {
-//            ImageIO.write(colorConsistentImage,"png",new File("D:\\Result.png"));
-//            System.exit(5);
-//        } catch (IOException ex) {
-//            Logger.getLogger(FRSEngine.class.getName()).log(Level.SEVERE, null, ex);
-//        }
+        
     }
     //</editor-fold>
 
@@ -365,8 +368,23 @@ public class FRSEngine extends FRSData {
      */
     public void blend() {
         Point shiftPoint = new Point(replacementPoint.x - warpedOrigin.x, replacementPoint.y - warpedOrigin.y);
-        blendedImage = Blender.getBlendedImage2(warpedImage, replacedFaceImage, shiftPoint);
-        replacedFaceImage = blendedImage;
+        //blendedImage = Blender.getBlendedImage2(warpedImage, replacedFaceImage, shiftPoint);
+
+//        Blender2 b = new Blender2();
+//        b.setFaceReplacedImage(replacedFaceImage);
+//        b.setFaceOnly(AlphaBlendedFace);
+//        b.setShiftVector(shiftPoint);
+//        b.setAveragingAlgorithm(blendingAlgorithmSelector);
+//        blendedImage = b.processAndGetResult();
+//        replacedFaceImage = blendedImage;
+        //blendedImage=replacedFaceImage;
+        Blender4 b=new Blender4();
+        b.setFace(colorConsistentImage);
+        b.setShiftVector(shiftPoint);
+        b.setReplacedImage(replacedFaceImage);
+        b.setIterations(blendIterations);
+        b.process();
+        blendedImage = b.getBlendedImage();
     }
     //</editor-fold>
 
@@ -466,6 +484,39 @@ public class FRSEngine extends FRSData {
     //</editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Replace Face">
+    public void replaceFace2() {
+        replacedFaceImage = DeepCopier.getBufferedImage(tarImg, BufferedImage.TYPE_INT_ARGB);
+        Blender3 b3=new Blender3();
+        //b3.setFace(colorConsistentImage);
+        b3.setFace(colorConsistentImage);
+        b3.setTargetImage(tarImg);
+        Point shiftVector=new Point(replacementPoint.x - warpedOrigin.x,replacementPoint.y - warpedOrigin.y);
+        b3.setShiftVector(shiftVector);
+        b3.setIterations(blendIterations);
+        b3.process();
+        BufferedImage temp=b3.getReplacedResult();
+        if(temp==null){
+            System.out.println("There is problem in Blender3");
+        }else{
+            replacedFaceImage=temp;
+        }
+        AlphaBlendedFace=b3.getAlphaBlendedFace();
+    }
+
+    public void replaceUsingTanBlending() {
+        //replacedFaceImage = DeepCopier.getBufferedImage(tarImg, BufferedImage.TYPE_INT_ARGB);
+        Point shiftPoint = new Point(replacementPoint.x - warpedOrigin.x, replacementPoint.y - warpedOrigin.y);
+        TanhBlender blender = new TanhBlender(colorConsistentImage, tarImg, shiftPoint, 7,10,5);
+        replacedFaceImage = blender.runAndGet();
+    }
+
+    public void overlayReplace() {
+        replacedFaceImage = DeepCopier.getBufferedImage(tarImg, BufferedImage.TYPE_INT_ARGB);
+        Graphics g = replacedFaceImage.getGraphics();
+        Point shiftVector = new Point(replacementPoint.x - warpedOrigin.x, replacementPoint.y - warpedOrigin.y);
+        g.drawImage(colorConsistentImage, shiftVector.x, shiftVector.y, null);
+    }
+
     public void replaceFace() {
         replacedFaceImage = DeepCopier.getBufferedImage(tarImg, BufferedImage.TYPE_INT_ARGB);
         //Point replacementPoint = new Point(bestPointToReplace.x - warpedOrigin.x, bestPointToReplace.y - warpedOrigin.y);

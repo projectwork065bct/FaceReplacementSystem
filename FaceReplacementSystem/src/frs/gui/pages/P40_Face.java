@@ -107,11 +107,10 @@ public class P40_Face extends RFPage {
         btnGroup.add(snakeRB.getRadio());
         //Add the buttons to the view
         optionView.addXY(skinRB, 1, 1);
-        optionView.addXY(gaRB, 1, 3);
+        //optionView.addXY(gaRB, 1, 3);
         optionView.addXY(snakeRB, 1, 5);
         initRBLbl();
         initSnakeView();
-
         pnlView.addXY(optionView, 1, 1);
     }
 
@@ -124,7 +123,7 @@ public class P40_Face extends RFPage {
         snakeLbl = new IOSUILabel("Snake Algorithm");
         snakeLbl.setForeground(Color.white);
         optionView.addXY(skinLbl, 3, 1);
-        optionView.addXY(gaLbl, 3, 3);
+        //optionView.addXY(gaLbl, 3, 3);
         optionView.addXY(snakeLbl, 3, 5);
     }
 
@@ -134,12 +133,20 @@ public class P40_Face extends RFPage {
         snakeThresholdLbl.setForeground(Color.white);
         snakeIterationLbl = new IOSUILabel("Iterations");
         snakeIterationLbl.setForeground(Color.white);
+        IOSUIView snakeThresholdBack = new IOSUIView("180px", "30px");
+        snakeThresholdBack.setBackground(Color.white);
         snakeThresholdTF = new IOSUITextField(false);
+        snakeThresholdTF.setText("3");
+        snakeThresholdBack.addXY(snakeThresholdTF, 1, 1);
         snakeIterationTF = new IOSUITextField(false);
+        snakeIterationTF.setText("5");
+        IOSUIView snakeIterationBack = new IOSUIView("180px", "30px");
+        snakeIterationBack.setBackground(Color.white);
+        snakeIterationBack.addXY(snakeIterationTF, 1, 1);
         snakeView.addXY(snakeThresholdLbl, 1, 1);
         snakeView.addXY(snakeIterationLbl, 1, 3);
-        snakeView.addXY(snakeThresholdTF, 3, 1);
-        snakeView.addXY(snakeIterationTF, 3, 3);
+        snakeView.addXY(snakeThresholdBack, 3, 1);
+        snakeView.addXY(snakeIterationBack, 3, 3);
         optionView.addXYW(snakeView, 1, 6, 3);
     }
 
@@ -149,7 +156,7 @@ public class P40_Face extends RFPage {
         curveLbl.setForeground(Color.white);
         curveView.addXY(curveLbl, 1, 1);
         initCheckBoxView();
-        pnlView.addXY(curveView, 1, 3);
+        //pnlView.addXY(curveView, 1, 3);
     }
 
     public void initCheckBoxView() {
@@ -180,7 +187,7 @@ public class P40_Face extends RFPage {
         initResetBtn();
 
         pnlView.addXY(extractFaceBtn, 1, 5);
-        pnlView.addXY(resetBtn, 1, 7);
+        //pnlView.addXY(resetBtn, 1, 7);
     }
 
     public void initExtractFaceBtn() {
@@ -188,11 +195,16 @@ public class P40_Face extends RFPage {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                if (chinCB.getCheckBox().isSelected()) {
+                    frs.setFlagForCurve(true);
+                } else {
+                    frs.setFlagForCurve(false);
+                }
                 setRect();
                 if (skinRB.getRadio().isSelected()) {
                     findFaceUsingThresholds();
                 } else if (snakeRB.getRadio().isSelected()) {//add the code of snake here
-                    
+
                     findFaceUsingSnake();
                 }
                 if (identity == SOURCE) {
@@ -207,8 +219,7 @@ public class P40_Face extends RFPage {
         });
 
     }
-    
-   
+
     public void initResetBtn() {
         resetBtn = new IOSUIButton(new AbstractAction("Reset") {
 
@@ -224,7 +235,7 @@ public class P40_Face extends RFPage {
             pc.navigateTo(new P20_FP(app, P20_FP.TARGET));
         } else {
             frs.warp(3);
-            pc.navigateTo(new P70_Replace(app));
+            pc.navigateTo(new P80_Replace(app));
         }
     }
 
@@ -232,8 +243,8 @@ public class P40_Face extends RFPage {
     public void findFaceUsingThresholds() {
         if (this.identity == SOURCE) {
             frs.detectSourceSkin();
-            frs.shrinkSource();
-            frs.growSource();
+            //frs.shrinkSource();
+            //frs.growSource();
             frs.findSourceCurves();
             frs.useSrcCurves();
             frs.findSourceBoundaryFilledMatrix();
@@ -247,6 +258,9 @@ public class P40_Face extends RFPage {
             int threshold = Integer.parseInt(snakeThresholdTF.getText());
             int iteration = Integer.parseInt(snakeIterationTF.getText());
             frs.applySnakeToSrc(threshold, iteration);
+            frs.findSourceCurves();
+            frs.useSrcCurves();
+            frs.findSourceBoundaryFilledMatrix();
         }
         //frs.findSourceBoundaryFilledImage();
     }
